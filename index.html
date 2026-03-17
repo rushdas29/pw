@@ -153,6 +153,20 @@
             40%, 60% { transform: translate(4px, 0); }
         }
         .red-alert-pulse { background-color: rgba(255, 0, 0, 0.1) !important; }
+    
+    
+    /* This makes the whole screen blink red/black */
+@keyframes emergency-flash {
+    0% { background-color: black; }
+    50% { background-color: #7f0000; }
+    100% { background-color: black; }
+}
+
+.emergency {
+    animation: emergency-flash 0.4s infinite;
+}
+    
+    
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -275,26 +289,29 @@
             document.getElementById('login-overlay').style.display = 'none';
             startEverything();
 
-// STEP A: At 18 seconds - The "Triple Scare" (Sound + Vibrate + Red Text)
+// STEP A: At 18 seconds - The "TOTAL CHAOS" Moment
             setTimeout(() => {
                 // 1. Play Error Beep
                 const errorSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
-                errorSound.play().catch(e => console.log("Audio play blocked until user clicks"));
+                errorSound.play().catch(e => console.log("Audio play blocked"));
 
-                // 2. Vibrate Phone (Android)
+                // 2. Vibrate Phone
                 if (navigator.vibrate) {
                     navigator.vibrate(1000); 
                 }
 
-                // 3. Show Red Warning
+                // 3. START THE RED FLASH
+                document.body.classList.add('emergency');
+
+                // 4. Show Red Warning
                 const logContent = document.getElementById('log-content');
                 const line = document.createElement('div');
                 line.style.color = "#ff0000"; 
                 line.style.fontWeight = "bold";
-                line.innerText = "> [CRITICAL] SYSTEM MALFUNCTION: DATA LEAK DETECTED!";
+                line.innerText = "> [CRITICAL] SYSTEM OVERRIDE: SELF-DESTRUCT INITIATED!";
                 logContent.appendChild(line);
                 
-                // 4. Visual Shake
+                // 5. Visual Shake
                 document.getElementById('main-wrapper').classList.add('shake');
             }, 18000); 
 
