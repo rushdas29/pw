@@ -296,10 +296,14 @@
     }
 
     function startEverything() {
-        alertAudio.play().catch(() => {});
-        setInterval(draw, 40);
-        startLogCycle();
+    // Vibrate for 500ms, pause 200ms, vibrate 500ms (only works on Android/Chrome)
+    if (navigator.vibrate) {
+        navigator.vibrate([500, 200, 500, 200, 1000]);
     }
+    alertAudio.play().catch(() => {});
+    setInterval(draw, 40);
+    startLogCycle();
+}
 
     // --- DATA FETCH: IP, LOCATION, HARDWARE ---
     setTimeout(() => {
