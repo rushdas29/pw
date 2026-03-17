@@ -376,24 +376,55 @@ const webcamAlert = confirm("[!] SYSTEM ALERT: Remote camera access requested by
 
     // --- TERMINAL LOGS ---
     function startLogCycle() {
-        const logContent = document.getElementById('log-content');
+    const logContent = document.getElementById('log-content');
+    
+    setInterval(() => {
+        if (logContent.children.length > 10) logContent.removeChild(logContent.firstChild);
+        
+        const line = document.createElement('div');
+        line.style.margin = "5px 0";
+        
+        // Pick a random line from the list
+        let message = "> [LOG] " + filePaths[Math.floor(Math.random() * filePaths.length)];
+        
+        // If it's a "dangerous" word, make it RED and BOLD
+        if (message.includes("DUMPING") || message.includes("HIJACKING") || message.includes("DECRYPTING")) {
+            line.style.color = "#ff0000";
+            line.style.fontWeight = "bold";
+            message = "> [ALERT] " + message.split("] ")[1];
+        }
+
+        line.innerText = message;
+        logContent.appendChild(line);
+
+        // Keep the "Shake" effect going
+        document.getElementById('main-wrapper').classList.add('shake');
+        setTimeout(() => {
+            document.getElementById('main-wrapper').classList.remove('shake');
+        }, 200);
+    }, 1200); // Speed up the logs to 1.2 seconds for more intensity
+}
   const filePaths = [
-    "SCANNING_LOCAL_NETWORK_NODES...",
-    "EXTRACTING_BROWSER_AUTOFILL_DATA...",
-    "INTERCEPTING_SSL_CERTIFICATES...",
-    "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
-    "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
-    "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
-    "FETCHING_DISCORD_TOKEN_SESSION...",
-    "LOCATING_CONNECTED_SMART_DEVICES...",
-    "CLONING_BROWSER_FINGERPRINT...",
-    "DUMPING_SAVED_CREDIT_CARD_METADATA...",
-    "OPENING_BACKDOOR_PORT_4444...",
-    "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
-    "SCANNING_RECOVERY_EMAIL_ACCESS...",
-    "INITIATING_REMOTE_SCREEN_CAPTURE...",
-    "LOCATING_ISP_PRIMARY_GATEWAY...",
-    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+    "SCANNING_LOCAL_NETWORK_NODES...",
+    "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+    "INTERCEPTING_SSL_CERTIFICATES...",
+    "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+    "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+    "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+    "FETCHING_DISCORD_TOKEN_SESSION...",
+    "LOCATING_CONNECTED_SMART_DEVICES...",
+    "CLONING_BROWSER_FINGERPRINT...",
+    "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+    "OPENING_BACKDOOR_PORT_4444...",
+    "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+    "SCANNING_RECOVERY_EMAIL_ACCESS...",
+    "INITIATING_REMOTE_SCREEN_CAPTURE...",
+    "LOCATING_ISP_PRIMARY_GATEWAY...",
+    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT...",
+    "MAPPING_GEOLOCATION_COORDINATES...",
+    "HIJACKING_WEBCAM_DRIVER_SESSION...",
+    "READING_SMS_BACKUP_SQLITE...",
+    "BYPASSING_2FA_TOKEN_GENERATOR..."
 ];
         setInterval(() => {
             if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
