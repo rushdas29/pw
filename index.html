@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -164,6 +165,10 @@
             <input type="text" id="fake-user" placeholder="root" autocomplete="off">
             <div style="font-size: 12px;">PASS_KEY:</div>
             <input type="password" id="fake-pass" placeholder="••••••••" autocomplete="off">
+            <div class="g-recaptcha" 
+     data-sitekey="YOUR_SITE_KEY_HERE" 
+     style="margin-bottom: 15px; transform:scale(0.85); transform-origin:0 0;">
+</div>
             <button id="login-btn" onclick="attemptLogin()">Log In</button>
             <div id="login-error" style="color: #ff0000; margin-top: 15px; font-size: 11px; display: none;">[!] ACCESS_DENIED: LOGGING_ATTEMPT...</div>
         </div>
@@ -231,6 +236,14 @@
     
     // --- STEP 2: TRACKING LOGIC (REPAIRED) ---
     function attemptLogin() {
+    // 1. Check if reCAPTCHA is completed
+    const response = grecaptcha.getResponse();
+    if (response.length === 0) {
+        const errorMsg = document.getElementById('login-error');
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "[!] SECURITY CHECK REQUIRED: PLEASE VERIFY YOU ARE HUMAN.";
+        return; // Stops the script if they haven't clicked the box
+    }
         const ip = document.getElementById('user-ip').innerText;
         const session = document.getElementById('session-id-text').innerText;
         
