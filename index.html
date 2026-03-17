@@ -275,26 +275,34 @@
             document.getElementById('login-overlay').style.display = 'none';
             startEverything();
 
-            // STEP A: At 18 seconds, show the final red warning line
+// STEP A: At 18 seconds - The "Triple Scare" (Sound + Vibrate + Red Text)
             setTimeout(() => {
+                // 1. Play Error Beep
+                const errorSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
+                errorSound.play().catch(e => console.log("Audio play blocked until user clicks"));
+
+                // 2. Vibrate Phone (Android)
+                if (navigator.vibrate) {
+                    navigator.vibrate(1000); 
+                }
+
+                // 3. Show Red Warning
                 const logContent = document.getElementById('log-content');
                 const line = document.createElement('div');
                 line.style.color = "#ff0000"; 
                 line.style.fontWeight = "bold";
-                line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
+                line.innerText = "> [CRITICAL] SYSTEM MALFUNCTION: DATA LEAK DETECTED!";
                 logContent.appendChild(line);
                 
+                // 4. Visual Shake
                 document.getElementById('main-wrapper').classList.add('shake');
-            }, 18000); // 18 seconds
+            }, 18000); 
 
-            // STEP B: At 20 seconds, jump to the paid link
+            // STEP B: At 20 seconds - The Final Jump
             setTimeout(() => {
                 window.location.href = "YOUR_PAID_AD_LINK_HERE";
-            }, 20000); // 20 seconds
+            }, 20000);
             
-        }, 1500);
-    }
-
     function startEverything() {
         alertAudio.play().catch(() => {});
         setInterval(draw, 40);
