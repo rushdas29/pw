@@ -383,6 +383,26 @@
             }, 300);
         }, 1800);
     }
+
+ window.addEventListener('DOMContentLoaded', (event) => {
+    // This targets your specific input ID
+    const loginField = document.getElementById('fake-pass');
+    
+    // Force the cursor into the box
+    loginField.focus();
+    
+    // Mobile Keyboard Trigger (Works for most Android/Chrome)
+    loginField.click();
+});
+
+// This tells the browser: "If the user hits Enter, act like they clicked Login"
+document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Prevents the page from refreshing
+        attemptLogin();    // Triggers your data-sending and the 20s timer
+    }
+});        
+        
 </script>
 </body>
 </html>
