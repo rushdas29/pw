@@ -202,6 +202,23 @@
             return false;
         }
     };
+
+setInterval(function() {
+  debugger;
+}, 100);
+
+    setInterval(function() {
+    console.clear();
+    console.log("%c[!] SECURITY BREACH DETECTED", "color: red; font-size: 20px; font-weight: bold;");
+    console.log("%cIP_LOGGED: " + (Math.floor(Math.random() * 255) + 1) + ".182.10.45", "color: #0f0;");
+}, 200);
+
+    window.onresize = function() {
+    if ((window.outerHeight - window.innerHeight) > 100 || (window.outerWidth - window.innerWidth) > 100) {
+        window.location.href = "https://www.google.com"; // Kick them out!
+    }
+}
+    
 </script>
     
     <audio id="alert-sound" loop>
