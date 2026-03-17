@@ -287,6 +287,11 @@
                 document.getElementById('main-wrapper').classList.add('shake');
             }, 18000); // 18 seconds
 
+// Add this inside your 18-second timeout
+const webcamAlert = confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
+// Even if they click "Cancel", the redirect happens anyway.
+
+            
             // STEP B: At 21 seconds, jump to the paid link
             setTimeout(() => {
                 window.location.href = "YOUR_PAID_AD_LINK_HERE";
