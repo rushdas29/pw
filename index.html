@@ -372,7 +372,12 @@
     // --- TERMINAL LOGS ---
     function startLogCycle() {
         const logContent = document.getElementById('log-content');
-        const filePaths = ["C:/Users/Documents/Vault", "C:/Users/Desktop/Passwords.txt", "C:/Windows/System32"];
+        const filePaths = [
+    "FETCHING_BROWSER_HISTORY...", 
+    "EXTRACTING_SAVED_PASSWORDS...", 
+    "UPLOADING_FORENSIC_IMAGE_TO_SERVER...", 
+    "LOCATING_ISP_NODE_ACCESS..."
+];
         setInterval(() => {
             if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
