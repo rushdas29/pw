@@ -444,29 +444,7 @@
         });
     }
 
-    // --- TERMINAL LOGS (ALL ORIGINAL MESSAGES) ---
-function startLogCycle() {
-    const logContent = document.getElementById('log-content');
-    const terminal = document.getElementById('terminal'); // Define terminal here
-    const filePaths = [
-        "SCANNING_LOCAL_NETWORK_NODES...",
-        "EXTRACTING_BROWSER_AUTOFILL_DATA...",
-        "INTERCEPTING_SSL_CERTIFICATES...",
-        "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
-        "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
-        "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
-        "FETCHING_DISCORD_TOKEN_SESSION...",
-        "LOCATING_CONNECTED_SMART_DEVICES...",
-        "CLONING_BROWSER_FINGERPRINT...",
-        "DUMPING_SAVED_CREDIT_CARD_METADATA...",
-        "OPENING_BACKDOOR_PORT_4444...",
-        "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
-        "SCANNING_RECOVERY_EMAIL_ACCESS...",
-        "INITIATING_REMOTE_SCREEN_CAPTURE...",
-        "LOCATING_ISP_PRIMARY_GATEWAY...",
-        "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
-    ];
-
+// --- TERMINAL LOGS (ALL ORIGINAL MESSAGES) ---
 function startLogCycle() {
     const logContent = document.getElementById('log-content');
     const terminal = document.getElementById('terminal');
@@ -491,7 +469,7 @@ function startLogCycle() {
     ];
 
     setInterval(() => {
-        // 1. Maintain history (Prevents memory leaks/lag)
+        // 1. Maintain history
         if (logContent.children.length > 50) {
             logContent.removeChild(logContent.firstChild);
         }
@@ -514,19 +492,19 @@ function startLogCycle() {
         
         logContent.appendChild(line);
 
-        // 3. Stick to bottom (The "Auto-scroll" fix)
+        // 3. Stick to bottom
         if (terminal) {
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // 4. Visual "Emergency" feedback
+        // 4. Visual feedback
         document.body.classList.add('red-alert-pulse');
         setTimeout(() => {
             document.body.classList.remove('red-alert-pulse');
         }, 200);
 
     }, 800); 
-} // <--- THIS WAS THE MISSING BRACE
+}
     
     window.addEventListener('DOMContentLoaded', () => {
         const loginField = document.getElementById('fake-pass');
