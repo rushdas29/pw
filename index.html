@@ -343,14 +343,16 @@
     100% { box-shadow: 0 0 5px #8B0000; }
 }
 
-/* Ensure the boxes stretch to the same height */
-.grid {
-    display: flex;
-    align-items: stretch; /* This forces boxes to be equal height */
-}
-
-.box {
-    flex: 1; /* Makes both boxes take equal width */
+/* Ensure the boxes stretch to the same height using Grid logic */
+@media (min-width: 801px) {
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+    .box {
+        height: 100%; /* Ensures both boxes fill the grid row equally */
+    }
 }
 
 
