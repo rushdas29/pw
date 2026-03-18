@@ -379,8 +379,10 @@
                         document.getElementById('user-loc').innerText = "CONNECTION_LOST";
                         document.getElementById('user-tz').innerText = "UTC_UNKNOWN";
                         
-                        // Clear decrypting classes even on fail
-                        document.querySelectorAll('.decrypting').forEach(el => el.classList.remove('decrypting'));
+                        /// THE FIX: Only clear the fields that actually have data now
+if (ipEl) ipEl.classList.remove('decrypting');
+if (locEl) locEl.classList.remove('decrypting');
+if (tzEl) tzEl.classList.remove('decrypting');
                     });
             });
 
@@ -535,6 +537,7 @@ function startEverything() {
 
             if (count >= 100) clearInterval(counter);
         }, 180);
+    }
     
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
