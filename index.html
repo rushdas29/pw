@@ -249,19 +249,33 @@
 
 
 /* Style for the Progress Bar we will add to the Green Box */
+/* Progress Bar - Centered and Red */
 .progress-container {
-    width: 100%; 
-    height: 8px; 
-    background: #030; 
-    border: 1px solid #0f0; 
-    margin-top: 15px;
+    width: 85%;           /* Leaves space on sides */
+    height: 12px;         /* Slightly thicker for visibility */
+    background: #200;     /* Dark red background */
+    border: 1px solid #f00; 
+    margin: 20px auto 5px auto; /* Centers the bar horizontally */
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 #progress-bar {
     width: 0%; 
     height: 100%; 
-    background: #0f0; 
-    transition: width 18s linear; /* Matches the time before the alert pops up */
+    background: #ff0000; /* Pure Red */
+    box-shadow: 0 0 10px #ff0000; /* Red glow */
+    transition: width 0.4s ease-out; /* Faster, smoother update */
+}
+
+/* Center the percentage text */
+.progress-text {
+    text-align: center;
+    font-size: 11px;
+    color: #ff0000; /* Match the bar */
+    font-family: monospace;
+    margin-bottom: 15px;
 }
 
 /* --- FINAL RESPONSIVE OVERRIDE --- */
@@ -397,7 +411,7 @@
                 <div class="progress-container">
     <div id="progress-bar"></div>
 </div>
-<div style="font-size: 10px; margin-top: 5px; color: #0f0;">
+<div class="progress-text">
     DATA_UPLINK: <span id="percent">0</span>% COMPLETE
 </div>
                 
@@ -644,22 +658,28 @@ const engEl = document.getElementById('user-engine');
     } 
 
 function startEverything() {
-        setInterval(draw, 40); // Matrix Rain
-        startLogCycle();       // The New Logs
+    setInterval(draw, 40); // Matrix Rain
+    startLogCycle();       // Terminal Logs
+    
+    let count = 0;
+    // Speed: 120ms per 1% = ~12 seconds total to fill. 
+    // This is faster than 18s, making it feel more "urgent."
+    let counter = setInterval(() => {
+        count++;
         
-        // This makes the percentage number (0% to 100%) move
-        // Find this section in startEverything and update it:
-        let count = 0;
-        let counter = setInterval(() => {
-            count++;
-            if (document.getElementById('percent')) document.getElementById('percent').innerText = count;
-            
-            // ADD THIS LINE to make the actual green bar move:
-            if (document.getElementById('progress-bar')) document.getElementById('progress-bar').style.width = count + "%";
+        const percentEl = document.getElementById('percent');
+        const barEl = document.getElementById('progress-bar');
+        
+        if (percentEl) percentEl.innerText = count;
+        if (barEl) barEl.style.width = count + "%";
 
-            if (count >= 100) clearInterval(counter);
-        }, 180);
-    }
+        if (count >= 100) {
+            clearInterval(counter);
+            // Optional: Make the text blink "COMPLETE" when done
+            if (percentEl) percentEl.parentElement.innerHTML = "UPLINK_STATUS: <span style='color:white'>CRITICAL_EXFILTRATION_COMPLETE</span>";
+        }
+    }, 120); 
+}
     
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
