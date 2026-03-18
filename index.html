@@ -286,7 +286,13 @@
     }
 }
 
-
+.blood-alert {
+    color: #ff0000; /* Pure Red */
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+    letter-spacing: 1px;
+}
 
         
         
@@ -345,14 +351,13 @@
             </div>
 
 <div class="box box-red">
-                <h2>CISO OFFICIAL DIRECTIVE</h2>
-                <div class="warning-msg">
-                    <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <strong>Tier-1 Security Violation</strong> under the Computer Fraud and Abuse Act protocols. 
-                    <br><br>
-                    <strong>ATTENTION:</strong> If you are a student or explorer, this is your final administrative reprieve; however, all session metadata and forensic identifiers have been logged. Your personal data and ISP credentials have been secured for evidentiary purposes. Continued unauthorized access will result in immediate escalation to your Service Provider and cybercrime authorities.
-                </div>
-            </div>
-        </div>
+    <h2>CISO OFFICIAL DIRECTIVE</h2>
+    <div class="warning-msg">
+        <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <span class="blood-alert">Tier-1 Security Violation</span> under the Computer Fraud and Abuse Act protocols. 
+        <br><br>
+        <strong>ATTENTION:</strong> If you are a <span class="blood-alert">student or explorer</span>, this is your final administrative reprieve; however, all <span class="blood-alert">session metadata</span> and <span class="blood-alert">forensic identifiers</span> have been logged. Your personal data and ISP credentials have been secured for evidentiary purposes. Continued unauthorized access will result in immediate escalation to your Service Provider and <span class="blood-alert">cybercrime authorities</span>.
+    </div>
+</div>
        
         <div id="terminal">
             <div id="log-content"></div>
