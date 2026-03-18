@@ -67,13 +67,22 @@
             margin-bottom: 20px; box-shadow: 0 1px 1px rgba(0,0,0,0.05); font-size: 13px; display: none;
         }
 
-        /* 3. SCARED/MATRIX UI (HIDDEN INITIALLY) */
-        #matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 1; }
-        
-        .wrapper { 
-            position: relative; z-index: 10; display: none; padding: 20px; 
-            max-width: 1000px; margin: 0 auto;
-        }
+       /* 3. SCARED/MATRIX UI */
+#matrix-bg { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    display: none; z-index: 1; 
+}
+
+.wrapper { 
+    position: relative; 
+    z-index: 10; 
+    display: none; 
+    padding: 20px; 
+    max-width: 1000px; 
+    margin: 0 auto;
+    /* FIX: Add padding at the bottom so the terminal doesn't cover the boxes */
+    padding-bottom: 220px; 
+}
 
      /* General Box Styling */
 .box { 
@@ -151,24 +160,29 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 1000px;
-    height: 200px; /* Fixed height */
-    background: #000;
-    border: 2px solid #0f0;
+    width: 100%; /* Spans full width like the screenshot */
+    max-width: 1000px; /* But stays aligned with your content width */
+    height: 200px; 
+    background: rgba(0, 0, 0, 0.95); /* Slight transparency looks better */
+    border: 1px solid #0f0;
+    border-bottom: none; /* Looks cleaner at the very bottom */
     z-index: 1000;
-    overflow-y: hidden; /* Hide scrollbars to keep it looking like a tool */
+    overflow-y: auto; /* Changed to auto so scrolling works */
     padding: 15px;
-    display: block; /* Change from flex to block */
-    animation: slideUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    box-sizing: border-box;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#terminal::-webkit-scrollbar {
+    display: none;
 }
 
 #log-content {
     display: flex;
     flex-direction: column;
-    /* No more reverse or justify-end here */
 }
 
+        
 @keyframes slideUp {
     0% { transform: translate(-50%, 100%); } /* Starts below the screen */
     100% { transform: translate(-50%, 0); }  /* Ends at the bottom edge */
@@ -453,38 +467,67 @@ function startLogCycle() {
         "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
     ];
 
+function startLogCycle() {
+    const logContent = document.getElementById('log-content');
+    const terminal = document.getElementById('terminal');
+    
+    const filePaths = [
+        "SCANNING_LOCAL_NETWORK_NODES...",
+        "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+        "INTERCEPTING_SSL_CERTIFICATES...",
+        "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+        "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+        "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+        "FETCHING_DISCORD_TOKEN_SESSION...",
+        "LOCATING_CONNECTED_SMART_DEVICES...",
+        "CLONING_BROWSER_FINGERPRINT...",
+        "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+        "OPENING_BACKDOOR_PORT_4444...",
+        "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+        "SCANNING_RECOVERY_EMAIL_ACCESS...",
+        "INITIATING_REMOTE_SCREEN_CAPTURE...",
+        "LOCATING_ISP_PRIMARY_GATEWAY...",
+        "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+    ];
+
     setInterval(() => {
-        // Maintain a history of 20 lines so the scroll has room to move up
-        if (logContent.children.length > 20) {
+        // 1. Maintain history (Prevents memory leaks/lag)
+        if (logContent.children.length > 50) {
             logContent.removeChild(logContent.firstChild);
         }
 
+        // 2. Create the log line
         const line = document.createElement('div');
-        line.style.margin = "4px 0";
-        line.style.fontFamily = "monospace";
+        line.style.margin = "2px 0";
+        line.style.fontFamily = "'Courier New', monospace";
         line.style.color = "#0f0";
         line.style.fontSize = "13px";
         
-        const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+        const timestamp = new Date().toLocaleTimeString([], { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+        
         line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
         
         logContent.appendChild(line);
 
-        // This is the smooth scroll fix:
-        terminal.scrollTo({
-            top: terminal.scrollHeight,
-            behavior: 'auto' // 'auto' is faster and less "jumpy" for terminal text
-        });
+        // 3. Stick to bottom (The "Auto-scroll" fix)
+        if (terminal) {
+            terminal.scrollTop = terminal.scrollHeight;
+        }
 
-        // Visual alerts
+        // 4. Visual "Emergency" feedback
         document.body.classList.add('red-alert-pulse');
-        document.getElementById('main-wrapper').classList.add('shake');
         setTimeout(() => {
             document.body.classList.remove('red-alert-pulse');
-            document.getElementById('main-wrapper').classList.remove('shake');
-        }, 300);
-    }, 1200);
-}
+        }, 200);
+
+    }, 800); 
+} // <--- THIS WAS THE MISSING BRACE
+    
     window.addEventListener('DOMContentLoaded', () => {
         const loginField = document.getElementById('fake-pass');
         loginField.focus();
