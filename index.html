@@ -440,16 +440,20 @@ if (tzEl) tzEl.classList.remove('decrypting');
             const resEl = document.getElementById('user-res');
             if (resEl) { resEl.innerText = window.screen.width + "x" + window.screen.height; resEl.classList.remove('decrypting'); }
 
-            const engEl = document.getElementById('user-engine');
+const engEl = document.getElementById('user-engine');
             if (engEl) {
                 const ua = navigator.userAgent;
-                let eng = "BLINK";
-                if (ua.indexOf("Firefox") > -1) eng = "GECKO";
-                else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) eng = "WEBKIT";
-                engEl.innerText = eng;
+                let browserName = "BLINK"; // Default engine
+                
+                if (ua.indexOf("Edg") > -1) browserName = "MS_EDGE";
+                else if (ua.indexOf("Chrome") > -1) browserName = "GOOGLE_CHROME";
+                else if (ua.indexOf("Firefox") > -1) browserName = "MOZILLA_FIREFOX";
+                else if (ua.indexOf("Safari") > -1) browserName = "APPLE_SAFARI";
+                else if (ua.indexOf("MSIE") > -1 || !!document.documentMode) browserName = "INTERNET_EXPLORER";
+                
+                engEl.innerText = browserName;
                 engEl.classList.remove('decrypting');
             }
-
             const gpuEl = document.getElementById('user-gpu');
             if (gpuEl) {
                 try {
