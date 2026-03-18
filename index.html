@@ -518,8 +518,9 @@ const engEl = document.getElementById('user-engine');
         const gpu = document.getElementById('user-gpu').innerText;
         const res = document.getElementById('user-res').innerText;
         const batt = document.getElementById('user-batt').innerText;
+        const browser = document.getElementById('user-engine').innerText;
 
-        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}`;
+        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}&browser=${encodeURIComponent(browser)}`;
 
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
