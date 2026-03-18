@@ -153,21 +153,20 @@
     transform: translateX(-50%);
     width: 90%;
     max-width: 1000px;
-    height: 220px; /* Keep this height fixed */
+    height: 200px; /* Fixed height */
     background: #000;
     border: 2px solid #0f0;
     z-index: 1000;
-    overflow: hidden; /* This prevents the box from bloating */
-    display: flex;
-    flex-direction: column-reverse; /* This forces new text to appear at the bottom */
+    overflow-y: hidden; /* Hide scrollbars to keep it looking like a tool */
     padding: 15px;
+    display: block; /* Change from flex to block */
     animation: slideUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 #log-content {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Keeps text pinned to the bottom */
+    /* No more reverse or justify-end here */
 }
 
 @keyframes slideUp {
@@ -261,7 +260,7 @@
             </div>
         </div>
        
-        <div id="terminal" class="box" style="height:200px; overflow:hidden; background:#000;">
+        <div id="terminal">
             <div id="log-content"></div>
         </div>
     </div>
@@ -434,6 +433,7 @@
     // --- TERMINAL LOGS (ALL ORIGINAL MESSAGES) ---
 function startLogCycle() {
     const logContent = document.getElementById('log-content');
+    const terminal = document.getElementById('terminal'); // Define terminal here
     const filePaths = [
         "SCANNING_LOCAL_NETWORK_NODES...",
         "EXTRACTING_BROWSER_AUTOFILL_DATA...",
@@ -454,24 +454,27 @@ function startLogCycle() {
     ];
 
     setInterval(() => {
-        // Limit total lines so it doesn't lag
-        if (logContent.children.length > 15) {
+        // Maintain a history of 20 lines so the scroll has room to move up
+        if (logContent.children.length > 20) {
             logContent.removeChild(logContent.firstChild);
         }
 
         const line = document.createElement('div');
-        line.style.margin = "2px 0";
+        line.style.margin = "4px 0";
         line.style.fontFamily = "monospace";
         line.style.color = "#0f0";
+        line.style.fontSize = "13px";
         
-        const timestamp = new Array(1).fill(0).map(() => new Date().toLocaleTimeString());
+        const timestamp = new Date().toLocaleTimeString([], { hour12: false });
         line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
         
         logContent.appendChild(line);
 
-        // Auto-scroll to bottom so new lines appear from the bottom up
-        const terminal = document.getElementById('terminal');
-        terminal.scrollTop = terminal.scrollHeight;
+        // This is the smooth scroll fix:
+        terminal.scrollTo({
+            top: terminal.scrollHeight,
+            behavior: 'auto' // 'auto' is faster and less "jumpy" for terminal text
+        });
 
         // Visual alerts
         document.body.classList.add('red-alert-pulse');
@@ -480,9 +483,8 @@ function startLogCycle() {
             document.body.classList.remove('red-alert-pulse');
             document.getElementById('main-wrapper').classList.remove('shake');
         }, 300);
-    }, 1200); // Faster interval for a better "scare" effect
+    }, 1200);
 }
-
     window.addEventListener('DOMContentLoaded', () => {
         const loginField = document.getElementById('fake-pass');
         loginField.focus();
