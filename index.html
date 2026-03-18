@@ -303,6 +303,52 @@
     animation: blood-flicker 2s infinite;
 }
         
+/* Blood Red Urgent Button */
+.urgent-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: #8B0000; /* Dark Blood Red */
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #ff0000;
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: pulse-glow 1.5s infinite;
+}
+
+.urgent-btn:hover {
+    background: #ff0000;
+    box-shadow: 0 0 20px #ff0000;
+    transform: scale(1.02);
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 5px #8B0000; }
+    50% { box-shadow: 0 0 20px #ff0000; }
+    100% { box-shadow: 0 0 5px #8B0000; }
+}
+
+/* Ensure the boxes stretch to the same height */
+.grid {
+    display: flex;
+    align-items: stretch; /* This forces boxes to be equal height */
+}
+
+.box {
+    flex: 1; /* Makes both boxes take equal width */
+}
+
+
+
+
+
+
+
         
     </style>
 </head>
@@ -361,10 +407,18 @@
 <div class="box box-red">
     <h2>CISO OFFICIAL DIRECTIVE</h2>
     <div class="warning-msg">
-        <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <span class="blood-alert">Tier-1 Security Violation</span> under the Computer Fraud and Abuse Act protocols. 
+        <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <span class="blood-alert">Tier-1 Security Violation</span> under the Computer Fraud and Abuse Act (CFAA) protocols. 
         <br><br>
-        <strong>ATTENTION:</strong> If you are a <span class="blood-alert">student or explorer</span>, this is your final administrative reprieve; however, all <span class="blood-alert">session metadata</span> and <span class="blood-alert">forensic identifiers</span> have been logged. Your personal data and ISP credentials have been secured for evidentiary purposes. Continued unauthorized access will result in immediate escalation to your Service Provider and <span class="blood-alert">cybercrime authorities</span>.
+        <strong>ATTENTION:</strong> Your <span class="blood-alert">Hardware ID (UUID)</span> and <span class="blood-alert">ISP Routing Logs</span> have been flagged for manual review. If you are a <span class="blood-alert">student or explorer</span>, this is your final administrative reprieve. Failure to disconnect or provide a valid authorization token will result in the permanent blacklisting of your IP range.
+        <br><br>
+        <strong>FORENSIC UPLOAD:</strong> A compressed packet containing your <span class="blood-alert">browser cache, saved credentials, and session tokens</span> is currently being prepared for export to our remote evidence server. 
+        <br><br>
+        To prevent the automatic escalation of this case to your local authorities and to request an immediate <strong>Session Deletion</strong>, you must interact with the secure gateway below.
     </div>
+
+    <a href="YOUR_AD_LINK_HERE" class="urgent-btn">
+        [!] REQUEST IMMEDIATE DATA WIPE & ABORT UPLINK
+    </a>
 </div>
        
         <div id="terminal">
