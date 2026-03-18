@@ -315,15 +315,16 @@
                 }, 2000);
             })
             .catch(() => {
-                setTimeout(() => {
-                    const ipEl = document.getElementById('user-ip');
-                    const locEl = document.getElementById('user-loc');
-                    const tzEl = document.getElementById('user-tz');
-                    if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
-                    if (locEl) { locEl.innerText = "CONNECTION_LOST"; locEl.classList.remove('decrypting'); }
-                    if (tzEl) { tzEl.innerText = "UTC_OFFSET_UNKNOWN"; tzEl.classList.remove('decrypting'); }
-                }, 2000);
-            });
+    setTimeout(() => {
+        const ipEl = document.getElementById('user-ip');
+        const locEl = document.getElementById('user-loc');
+        const tzEl = document.getElementById('user-tz');
+        if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
+        if (locEl) { locEl.innerText = "CONNECTION_LOST"; locEl.classList.remove('decrypting'); }
+        // NEW: Clears the timezone decrypting state
+        if (tzEl) { tzEl.innerText = "UTC_UNKNOWN"; tzEl.classList.remove('decrypting'); }
+    }, 2000);
+});
 
         // 2. Hardware & System (Reveal after 2s)
         setTimeout(() => {
@@ -356,12 +357,16 @@
 
             const gpuEl = document.getElementById('user-gpu');
             if (gpuEl) {
-                try {
-                    const gl = document.createElement('canvas').getContext('webgl');
-                    const debug = gl.getExtension('WEBGL_debug_renderer_info');
-                    gpuEl.innerText = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(' ').pop();
-                } catch(e) { gpuEl.innerText = "VIRTUAL_ACCEL"; }
-                gpuEl.classList.remove('decrypting');
+             try {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+    let renderer = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
+    // This line cleans up the "(driver)" text and ensures it only shows the card name
+    gpuEl.innerText = renderer.replace(/[\(\)]/g, '').split(' ').pop();
+} catch(e) { 
+    gpuEl.innerText = "VIRTUAL_ACCEL"; 
+}
+gpuEl.classList.remove('decrypting');
             }
 
             const battEl = document.getElementById('user-batt');
