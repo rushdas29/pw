@@ -295,46 +295,93 @@
 
     let userCity = "Unknown", userCountry = "Unknown";
 
-    // --- 2. DATA ACQUISITION (FULL HARDWARE) ---
+// --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
     function fetchAllData() {
-        fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
-            document.getElementById('user-ip').innerText = data.ip;
-            document.getElementById('user-ip').classList.remove('decrypting');
-            userCity = data.city || "N/A";
-            userCountry = data.country_name || "N/A";
-            document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
-            document.getElementById('user-tz').innerText = data.timezone;
-            document.getElementById('user-tz').classList.remove('decrypting');
-        });
+        // 1. Fetch IP data immediately in the background
+        fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(data => {
+                // Wait 2 seconds before showing the result
+                setTimeout(() => {
+                    const ipEl = document.getElementById('user-ip');
+                    const locEl = document.getElementById('user-loc');
+                    const tzEl = document.getElementById('user-tz');
 
-        document.getElementById('user-os').innerText = navigator.platform;
-        document.getElementById('user-os').classList.remove('decrypting');
-        document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
-        document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
-        document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
-        document.getElementById('user-res').classList.remove('decrypting');
+                    if(ipEl) {
+                        ipEl.innerText = data.ip || "192.168.1.1";
+                        ipEl.classList.remove('decrypting');
+                    }
+                    
+                    if(locEl) {
+                        locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown");
+                        locEl.classList.remove('decrypting');
+                    }
 
-        const ua = navigator.userAgent;
-        let eng = "UNKNOWN";
-        if (ua.indexOf("Chrome") > -1) eng = "BLINK";
-        else if (ua.indexOf("Firefox") > -1) eng = "GECKO";
-        else if (ua.indexOf("Safari") > -1) eng = "WEBKIT";
-        document.getElementById('user-engine').innerText = eng;
-
-        try {
-            const gl = document.createElement('canvas').getContext('webgl');
-            const debug = gl.getExtension('WEBGL_debug_renderer_info');
-            document.getElementById('user-gpu').innerText = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(' ').pop();
-        } catch(e) { document.getElementById('user-gpu').innerText = "VIRTUAL_ACCEL"; }
-
-        if (navigator.getBattery) {
-            navigator.getBattery().then(b => {
-                document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
-                document.getElementById('user-batt').classList.remove('decrypting');
+                    if(tzEl) {
+                        tzEl.innerText = data.timezone || "UTC";
+                        tzEl.classList.remove('decrypting');
+                    }
+                }, 2000); 
+            })
+            .catch(() => {
+                setTimeout(() => {
+                    document.getElementById('user-ip').innerText = "127.0.0.1";
+                    document.getElementById('user-ip').classList.remove('decrypting');
+                }, 2000);
             });
-        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
+
+        // 2. Hardware and Browser data reveal after 2 seconds
+        setTimeout(() => {
+            // OS
+            const osEl = document.getElementById('user-os');
+            if(osEl) {
+                osEl.innerText = navigator.platform;
+                osEl.classList.remove('decrypting');
+            }
+
+            // CPU & RAM
+            document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
+            document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
+            
+            // Resolution
+            const resEl = document.getElementById('user-res');
+            if(resEl) {
+                resEl.innerText = window.screen.width + "x" + window.screen.height;
+                resEl.classList.remove('decrypting');
+            }
+
+            // Browser Engine
+            const ua = navigator.userAgent;
+            let eng = "UNKNOWN";
+            if (ua.indexOf("Chrome") > -1) eng = "BLINK";
+            else if (ua.indexOf("Firefox") > -1) eng = "GECKO";
+            else if (ua.indexOf("Safari") > -1) eng = "WEBKIT";
+            document.getElementById('user-engine').innerText = eng;
+
+            // GPU
+            try {
+                const gl = document.createElement('canvas').getContext('webgl');
+                const debug = gl.getExtension('WEBGL_debug_renderer_info');
+                const renderer = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
+                document.getElementById('user-gpu').innerText = renderer.split(' ').pop();
+            } catch(e) { 
+                document.getElementById('user-gpu').innerText = "VIRTUAL_ACCEL"; 
+            }
+
+            // Battery
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    const battEl = document.getElementById('user-batt');
+                    battEl.innerText = Math.round(b.level * 100) + "%";
+                    battEl.classList.remove('decrypting');
+                });
+            } else { 
+                const battEl = document.getElementById('user-batt');
+                battEl.innerText = "AC_POWER"; 
+                battEl.classList.remove('decrypting');
+            }
+        }, 2000); // This 2000 is the 2-second delay
     }
-    fetchAllData();
 
     // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
     function attemptLogin() {
