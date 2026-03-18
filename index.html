@@ -425,6 +425,17 @@
     <a href="YOUR_AD_LINK_HERE" class="urgent-btn">
         [!] REQUEST IMMEDIATE DATA WIPE & ABORT UPLINK
     </a>
+
+<div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed rgba(255,0,0,0.3); font-family: monospace; font-size: 10px; color: rgba(255,255,255,0.5);">
+    <div style="display: flex; justify-content: space-between;">
+        <span>AUTH_SIG: <span id="digital-sig" style="color: #0f0;">GENERATING...</span></span>
+    </div>
+    <div style="margin-top: 5px;">
+        VERIFICATION: <span style="color: #0f0;">PASS</span> | ENCRYPTION: <span style="color: #0f0;">RSA-4096-ECC</span> | HASH: <span style="color: #0f0;">SHA-256</span>
+    </div>
+</div>
+
+    
 </div>
 
        
@@ -723,29 +734,45 @@ function startEverything() {
     }
     
 window.addEventListener('DOMContentLoaded', () => {
-        const loginField = document.getElementById('fake-pass');
-        if (loginField) loginField.focus();
-        fetchAllData(); 
-    });
+    // 1. Focus the password field
+    const loginField = document.getElementById('fake-pass');
+    if (loginField) loginField.focus();
 
-    document.getElementById('fake-pass').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            attemptLogin();
-        }
-    });
+    // 2. Fetch all system data
+    fetchAllData(); 
 
-window.addEventListener('DOMContentLoaded', () => {
-    // Generate a scary-looking Case ID
+    // 3. Generate a scary-looking Case ID
     const randomID = "SEC-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(7)).toUpperCase();
     const caseIdEl = document.getElementById('case-id');
     if (caseIdEl) caseIdEl.innerText = randomID;
 
-    // Set a live timestamp
+    // 4. Set a live timestamp
     const timeEl = document.getElementById('real-time');
     if (timeEl) {
         const now = new Date();
         timeEl.innerText = now.toLocaleString();
+    }
+
+    // 5. DIGITAL SIGNATURE GENERATOR
+    function generateFakeHash(input) {
+        let hash = 0;
+        for (let i = 0; i < input.length; i++) {
+            const char = input.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; 
+        }
+        return Math.abs(hash).toString(16).padStart(8, '0') + 
+               Math.random().toString(16).substring(2, 10).toUpperCase() + 
+               Math.random().toString(16).substring(2, 10).toUpperCase();
+    }
+
+    const sigEl = document.getElementById('digital-sig');
+    if (sigEl) {
+        // Wait 3 seconds after the page loads to show the "Signing" process
+        setTimeout(() => {
+            const seed = document.getElementById('user-ip').innerText || "ADMIN_SESSION";
+            sigEl.innerText = generateFakeHash(seed);
+        }, 4000); 
     }
 });
     
