@@ -84,24 +84,27 @@
     padding-bottom: 220px; 
 }
 
-/* Update your .box class to ensure it handles internal space */
+/* 2. Fix the Box Sizing */
 .box { 
     background: rgba(0,0,0,0.9); 
     border: 1px solid #0f0; 
     padding: 25px; 
     color: #0f0; 
     font-family: 'Courier New', monospace; 
-    box-sizing: border-box; /* Crucial: includes padding in the 50% width */
-    display: flex;
-    flex-direction: column;
+    box-sizing: border-box; /* Includes padding in the width calculation */
+    min-width: 0; /* Prevents long text/IPs from pushing the box wider */
+    word-wrap: break-word; /* Wraps the long IP if it hits the edge */
+    overflow: hidden;
 }
 
-/* Optional: Make the Red Box text center-aligned if it looks too empty */
+/* 3. Ensure the Red Box stays balanced */
 .box-red {
     border-color: #ff0000; 
     color: #fff; 
     background: rgba(40, 0, 0, 0.9);
-    justify-content: center; /* Centers the legal text vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Keeps titles aligned at the top */
 }
 
 @media (max-width: 800px) { 
@@ -116,9 +119,14 @@
     padding: 0;
 }
 
+/* 4. Keep the text inside lists looking clean */
 .data-list li {
-    margin-bottom: 15px; /* Adds space between each data line */
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
     border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
 }
         
        .danger-bar { 
@@ -150,16 +158,16 @@
         @keyframes pulse_red { 0% { background: rgba(255,0,0,0); } 50% { background: rgba(255,0,0,0.2); } 100% { background: rgba(255,0,0,0); } }
     
     
-/* Update your .grid class to this */
+/* 1. Force the 50/50 split */
 .grid { 
     display: grid; 
-    grid-template-columns: 1fr 1fr; /* Forces two equal columns */
-    gap: 30px; /* Space between them */
-    align-items: stretch; /* Makes both boxes the same height automatically */
+    grid-template-columns: 1fr 1fr; /* Exactly 50% each */
+    gap: 20px; 
     width: 100%;
-    margin-bottom: 20px;
+    max-width: 1000px; /* Matches your wrapper */
+    margin: 0 auto;
+    align-items: stretch; /* Makes both boxes the same height */
 }
-    
 #terminal {
     position: fixed;
     bottom: 0;
