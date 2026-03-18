@@ -105,12 +105,21 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Keeps titles aligned at the top */
+    animation: glitch-flicker 5s infinite;
 }
 
 @media (max-width: 800px) { 
     .grid { 
         grid-template-columns: 1fr; /* Stack them on top of each other on mobile */
     } 
+}
+        @keyframes glitch-flicker {
+    0% { opacity: 1; }
+    95% { opacity: 1; transform: scale(1); }
+    96% { opacity: 0.8; transform: scale(1.01); }
+    97% { opacity: 1; }
+    98% { opacity: 0.9; transform: scale(0.99); }
+    100% { opacity: 1; }
 }
         
 /* Data List Spacing (Inside the boxes) */
@@ -228,7 +237,21 @@
 }
 
 
+/* Style for the Progress Bar we will add to the Green Box */
+.progress-container {
+    width: 100%; 
+    height: 8px; 
+    background: #030; 
+    border: 1px solid #0f0; 
+    margin-top: 15px;
+}
 
+#progress-bar {
+    width: 0%; 
+    height: 100%; 
+    background: #0f0; 
+    transition: width 18s linear; /* Matches the time before the alert pops up */
+}
 
 
         
@@ -274,6 +297,15 @@
                     <li>DISPLAY_ARRAY: <span id="user-res" class="decrypting">[BYPASSING...]</span></li>
                     <li>LOC_TIMEZONE: <span id="user-tz" class="decrypting">[LOCATING...]</span></li>
                     <li>HW_BATTERY_CELL: <span id="user-batt" class="decrypting">[ACCESSING...]</span></li>
+                
+                <div class="progress-container">
+    <div id="progress-bar"></div>
+</div>
+<div style="font-size: 10px; margin-top: 5px; color: #0f0;">
+    DATA_UPLINK: <span id="percent">0</span>% COMPLETE
+</div>
+                
+                
                 </ul>
             </div>
 
@@ -487,22 +519,20 @@
         }, 1200);
     } 
 
-    function startEverything() {
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) { window.location.reload(); }
-        });
+function startEverything() {
+        setInterval(draw, 40); // Matrix Rain
+        startLogCycle();       // The New Logs
+        
+        // This makes the percentage number (0% to 100%) move
+        let count = 0;
+        let counter = setInterval(() => {
+            count++;
+            if (document.getElementById('percent')) document.getElementById('percent').innerText = count;
+            if (count >= 100) clearInterval(counter);
+        }, 180); 
 
-        if (navigator.vibrate) {
-            navigator.vibrate([500, 200, 500, 200, 1000]);
-        }
-
-        if (alertAudio) {
-            alertAudio.play().catch(() => {});
-        }
-        setInterval(draw, 40);
-        startLogCycle();
+        if (alertAudio) alertAudio.play().catch(() => {});
     }
-
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
@@ -549,43 +579,32 @@
             "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
         ];
 
-        setInterval(() => {
-            if (logContent.children.length > 50) {
-                logContent.removeChild(logContent.firstChild);
-            }
-
+       setInterval(() => {
+            if (logContent.children.length > 20) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
-            line.style.margin = "2px 0";
-            line.style.fontFamily = "'Courier New', monospace";
             line.style.color = "#0f0";
-            line.style.fontSize = "13px";
-            
-            const timestamp = new Date().toLocaleTimeString([], { 
-                hour12: false, 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-            });
-            
-            line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
-            
             logContent.appendChild(line);
 
-            if (terminal) {
-                terminal.scrollTop = terminal.scrollHeight;
-            }
+            let msg = `> [${new Date().toLocaleTimeString()}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}`;
+            let i = 0;
+            let typer = setInterval(() => {
+                line.innerHTML += msg.charAt(i);
+                i++;
+                if (i >= msg.length) {
+                    clearInterval(typer);
+                    line.innerHTML += " <span style='color:white'>...DONE</span>";
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            }, 20);
 
             document.body.classList.add('red-alert-pulse');
-            setTimeout(() => {
-                document.body.classList.remove('red-alert-pulse');
-            }, 200);
-
-        }, 800); 
+            setTimeout(() => document.body.classList.remove('red-alert-pulse'), 200);
+        }, 1000);
     }
     
-    window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
         const loginField = document.getElementById('fake-pass');
-        loginField.focus();
+        if (loginField) loginField.focus();
         fetchAllData(); 
     });
 
