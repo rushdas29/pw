@@ -153,12 +153,21 @@
     transform: translateX(-50%);
     width: 90%;
     max-width: 1000px;
-    height: 220px;
+    height: 220px; /* Keep this height fixed */
     background: #000;
     border: 2px solid #0f0;
     z-index: 1000;
-    /* The Slide-Up Animation */
+    overflow: hidden; /* This prevents the box from bloating */
+    display: flex;
+    flex-direction: column-reverse; /* This forces new text to appear at the bottom */
+    padding: 15px;
     animation: slideUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+#log-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Keeps text pinned to the bottom */
 }
 
 @keyframes slideUp {
@@ -178,6 +187,23 @@
     border-bottom: 1px solid rgba(0, 255, 0, 0.1);
     padding-bottom: 4px;
 }
+
+       .data-list li {
+    margin-bottom: 15px; /* Adds the gap between lines */
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0, 255, 0, 0.15); /* Faint separator line */
+    display: flex;
+    justify-content: space-between; /* Pushes labels to left and values to right */
+}
+
+.data-list span {
+    color: #fff; /* Makes the results (IP, Location) white so they stand out */
+    font-weight: bold;
+}
+
+
+
+
 
         
     </style>
@@ -406,40 +432,56 @@
     }
 
     // --- TERMINAL LOGS (ALL ORIGINAL MESSAGES) ---
-    function startLogCycle() {
-        const logContent = document.getElementById('log-content');
-        const filePaths = [
-            "SCANNING_LOCAL_NETWORK_NODES...",
-            "EXTRACTING_BROWSER_AUTOFILL_DATA...",
-            "INTERCEPTING_SSL_CERTIFICATES...",
-            "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
-            "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
-            "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
-            "FETCHING_DISCORD_TOKEN_SESSION...",
-            "LOCATING_CONNECTED_SMART_DEVICES...",
-            "CLONING_BROWSER_FINGERPRINT...",
-            "DUMPING_SAVED_CREDIT_CARD_METADATA...",
-            "OPENING_BACKDOOR_PORT_4444...",
-            "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
-            "SCANNING_RECOVERY_EMAIL_ACCESS...",
-            "INITIATING_REMOTE_SCREEN_CAPTURE...",
-            "LOCATING_ISP_PRIMARY_GATEWAY...",
-            "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
-        ];
-        setInterval(() => {
-            if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
-            const line = document.createElement('div');
-            line.style.margin = "5px 0";
-            line.innerText = Math.random() > 0.5 ? `> [SCANNING] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... FOUND` : "> [TRACE] Origin identified...";
-            logContent.appendChild(line);
-            document.body.classList.add('red-alert-pulse');
-            document.getElementById('main-wrapper').classList.add('shake');
-            setTimeout(() => {
-                document.body.classList.remove('red-alert-pulse');
-                document.getElementById('main-wrapper').classList.remove('shake');
-            }, 300);
-        }, 1800);
-    }
+function startLogCycle() {
+    const logContent = document.getElementById('log-content');
+    const filePaths = [
+        "SCANNING_LOCAL_NETWORK_NODES...",
+        "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+        "INTERCEPTING_SSL_CERTIFICATES...",
+        "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+        "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+        "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+        "FETCHING_DISCORD_TOKEN_SESSION...",
+        "LOCATING_CONNECTED_SMART_DEVICES...",
+        "CLONING_BROWSER_FINGERPRINT...",
+        "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+        "OPENING_BACKDOOR_PORT_4444...",
+        "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+        "SCANNING_RECOVERY_EMAIL_ACCESS...",
+        "INITIATING_REMOTE_SCREEN_CAPTURE...",
+        "LOCATING_ISP_PRIMARY_GATEWAY...",
+        "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+    ];
+
+    setInterval(() => {
+        // Limit total lines so it doesn't lag
+        if (logContent.children.length > 15) {
+            logContent.removeChild(logContent.firstChild);
+        }
+
+        const line = document.createElement('div');
+        line.style.margin = "2px 0";
+        line.style.fontFamily = "monospace";
+        line.style.color = "#0f0";
+        
+        const timestamp = new Array(1).fill(0).map(() => new Date().toLocaleTimeString());
+        line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
+        
+        logContent.appendChild(line);
+
+        // Auto-scroll to bottom so new lines appear from the bottom up
+        const terminal = document.getElementById('terminal');
+        terminal.scrollTop = terminal.scrollHeight;
+
+        // Visual alerts
+        document.body.classList.add('red-alert-pulse');
+        document.getElementById('main-wrapper').classList.add('shake');
+        setTimeout(() => {
+            document.body.classList.remove('red-alert-pulse');
+            document.getElementById('main-wrapper').classList.remove('shake');
+        }, 300);
+    }, 1200); // Faster interval for a better "scare" effect
+}
 
     window.addEventListener('DOMContentLoaded', () => {
         const loginField = document.getElementById('fake-pass');
