@@ -765,6 +765,9 @@ function startEverything() {
                 document.body.classList.remove('red-alert-pulse');
                 document.getElementById('main-wrapper').classList.remove('shake');
             }, 200);
+        }, 1000); // <--- ADD THIS: Closes the setInterval
+    } // <--- ADD THIS: Closes the startLogCycle function
+           
     
 window.addEventListener('DOMContentLoaded', () => {
     // 1. Focus the password field
