@@ -297,23 +297,55 @@
 
     // --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
     function fetchAllData() {
-        // 1. IP & Location (Fetch immediately, reveal after 2s)
-        fetch('https://ipapi.co/json/')
+// 1. IP & Location (With Auto-Fallback)
+fetch('https://ipapi.co/json/')
+    .then(r => {
+        if (!r.ok) throw new Error('Rate Limited');
+        return r.json();
+    })
+    .then(data => {
+        renderLocation(data);
+    })
+    .catch(() => {
+        // FAILOVER: Try a different API if the first one is blocked
+        fetch('https://api.ipify.org?format=json')
             .then(r => r.json())
             .then(data => {
-                setTimeout(() => {
-                    const ipEl = document.getElementById('user-ip');
-                    const locEl = document.getElementById('user-loc');
-                    const tzEl = document.getElementById('user-tz');
-
-                    if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
-                    if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
-                    if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
-                    
-                    userCity = data.city || "Unknown";
-                    userCountry = data.country_name || "Unknown";
-                }, 2000);
+                const ipEl = document.getElementById('user-ip');
+                if (ipEl) { 
+                    ipEl.innerText = data.ip; 
+                    ipEl.classList.remove('decrypting'); 
+                }
+                // Since ipify only gives IP, we label location as 'ENCRYPTED_NODE'
+                const locEl = document.getElementById('user-loc');
+                if (locEl) { 
+                    locEl.innerText = "BYPASSING_GEO_BLOCK..."; 
+                    locEl.classList.remove('decrypting');
+                }
             })
+            .catch(() => {
+                // ABSOLUTE FAIL: Show the localhost error
+                const ipEl = document.getElementById('user-ip');
+                if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
+                document.getElementById('user-loc').innerText = "CONNECTION_LOST";
+                document.getElementById('user-tz').innerText = "UTC_UNKNOWN";
+            });
+    });
+
+function renderLocation(data) {
+    setTimeout(() => {
+        const ipEl = document.getElementById('user-ip');
+        const locEl = document.getElementById('user-loc');
+        const tzEl = document.getElementById('user-tz');
+
+        if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
+        if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
+        if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
+        
+        userCity = data.city || "Unknown";
+        userCountry = data.country_name || "Unknown";
+    }, 2000);
+})
             .catch(() => {
     setTimeout(() => {
         const ipEl = document.getElementById('user-ip');
