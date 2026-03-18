@@ -524,15 +524,18 @@ function startEverything() {
         startLogCycle();       // The New Logs
         
         // This makes the percentage number (0% to 100%) move
+        // Find this section in startEverything and update it:
         let count = 0;
         let counter = setInterval(() => {
             count++;
             if (document.getElementById('percent')) document.getElementById('percent').innerText = count;
-            if (count >= 100) clearInterval(counter);
-        }, 180); 
+            
+            // ADD THIS LINE to make the actual green bar move:
+            if (document.getElementById('progress-bar')) document.getElementById('progress-bar').style.width = count + "%";
 
-        if (alertAudio) alertAudio.play().catch(() => {});
-    }
+            if (count >= 100) clearInterval(counter);
+        }, 180);
+    
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
