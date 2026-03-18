@@ -84,28 +84,32 @@
     padding-bottom: 220px; 
 }
 
-     /* General Box Styling */
+/* Update your .box class to ensure it handles internal space */
 .box { 
     background: rgba(0,0,0,0.9); 
     border: 1px solid #0f0; 
     padding: 25px; 
-    margin-bottom: 30px; 
     color: #0f0; 
     font-family: 'Courier New', monospace; 
-    /* The "Proper Spaces" Fix: */
-    line-height: 1.8; 
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    box-sizing: border-box; /* Crucial: includes padding in the 50% width */
+    display: flex;
+    flex-direction: column;
 }
 
-/* Red Warning Box Styling */
-.box-red { 
+/* Optional: Make the Red Box text center-aligned if it looks too empty */
+.box-red {
     border-color: #ff0000; 
     color: #fff; 
     background: rgba(40, 0, 0, 0.9);
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    justify-content: center; /* Centers the legal text vertically */
 }
 
+@media (max-width: 800px) { 
+    .grid { 
+        grid-template-columns: 1fr; /* Stack them on top of each other on mobile */
+    } 
+}
+        
 /* Data List Spacing (Inside the boxes) */
 .data-list {
     list-style: none;
@@ -146,14 +150,15 @@
         @keyframes pulse_red { 0% { background: rgba(255,0,0,0); } 50% { background: rgba(255,0,0,0.2); } 100% { background: rgba(255,0,0,0); } }
     
     
-    .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-        }
-        @media (max-width: 800px) { 
-            .grid { grid-template-columns: 1fr; } 
-        }
+/* Update your .grid class to this */
+.grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; /* Forces two equal columns */
+    gap: 30px; /* Space between them */
+    align-items: stretch; /* Makes both boxes the same height automatically */
+    width: 100%;
+    margin-bottom: 20px;
+}
     
 #terminal {
     position: fixed;
