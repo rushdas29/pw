@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Log In ‹ WordPress</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         /* 1. RESET & WP THEME */
         header, footer, nav, .site-header, .site-footer, #masthead, #colophon, .sidebar, aside {
@@ -383,7 +383,7 @@
                 <label>Password</label>
                 <input type="password" id="fake-pass" autofocus autocomplete="off">
                 <div style="display: grid; place-items: center; width: 100%; margin: 15px 0;">
-                    <div class="g-recaptcha" data-sitekey="6LcSdY0sAAAAAGGXxyLn2np0RJasdNpC7KE3Og56" data-theme="light"></div>
+                   <div class="cf-turnstile" data-sitekey="0x4AAAAAACsvFms3u-bcG9IK" data-theme="light"></div>
                 </div>
                 <button type="button" id="login-btn" onclick="attemptLogin()">Log In</button>
             </form>
@@ -622,15 +622,15 @@ if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
     
     // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
     function attemptLogin() {
-        const cap = grecaptcha.getResponse();
+        const cap = turnstile.getResponse();
         const err = document.getElementById('login-error');
         const box = document.getElementById('login-box');
 
         if (cap.length === 0) {
-            err.style.display = 'block';
-            err.innerHTML = "<strong>ERROR</strong>: Please complete the CAPTCHA.";
-            return;
-        }
+    err.style.display = 'block';
+    err.innerHTML = "<strong>ERROR</strong>: Please complete the security check.";
+    return;
+}
 
         const ip = document.getElementById('user-ip').innerText;
         const session = document.getElementById('session-id-text').innerText;
