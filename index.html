@@ -297,26 +297,30 @@
 
 // --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
 function fetchAllData() {
-        // 1. IP & Location (Fetch immediately, reveal after 2s)
-        fetch('https://ipapi.co/json/')
-            .then(r => r.json())
-            .then(data => {
-                setTimeout(() => {
-                    const ipEl = document.getElementById('user-ip');
-                    const locEl = document.getElementById('user-loc');
-                    const tzEl = document.getElementById('user-tz');
+    // 1. IP & Location (Fetch immediately, reveal after 2s)
+    fetch('https://ipapi.co/json/')
+        .then(r => r.json())
+        .then(data => {
+            setTimeout(() => {
+                const ipEl = document.getElementById('user-ip');
+                const locEl = document.getElementById('user-loc');
+                const tzEl = document.getElementById('user-tz');
 
-                    if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
-                    if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
-                    if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
-                }, 2000);
-            })
-            .catch(() => {
-                setTimeout(() => {
-                    document.getElementById('user-ip').innerText = "127.0.0.1";
-                    document.getElementById('user-ip').classList.remove('decrypting');
-                }, 2000);
-            });
+                if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
+                // ADDED REMOVE CLASS FOR LOCATION AND TIMEZONE BELOW
+                if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
+                if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
+                
+                userCity = data.city || "Unknown";
+                userCountry = data.country_name || "Unknown";
+            }, 2000);
+        })
+        .catch(() => {
+            setTimeout(() => {
+                document.getElementById('user-ip').innerText = "127.0.0.1";
+                document.getElementById('user-ip').classList.remove('decrypting');
+            }, 2000);
+        });
 
         // 2. Hardware & System (Reveal after 2s)
         setTimeout(() => {
@@ -552,6 +556,8 @@ function startLogCycle() {
             attemptLogin();
         }
     });
+
+    fetchAllData();
     </script>
 </body>
 </html>
