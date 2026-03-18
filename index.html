@@ -295,68 +295,49 @@
 
     let userCity = "Unknown", userCountry = "Unknown";
 
-    // --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
+// --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
     function fetchAllData() {
-// 1. IP & Location (With Auto-Fallback)
-fetch('https://ipapi.co/json/')
-    .then(r => {
-        if (!r.ok) throw new Error('Rate Limited');
-        return r.json();
-    })
-    .then(data => {
-        renderLocation(data);
-    })
-    .catch(() => {
-        // FAILOVER: Try a different API if the first one is blocked
-        fetch('https://api.ipify.org?format=json')
-            .then(r => r.json())
+        // 1. IP & Location (With Auto-Fallback)
+        fetch('https://ipapi.co/json/')
+            .then(r => {
+                if (!r.ok) throw new Error('Rate Limited');
+                return r.json();
+            })
             .then(data => {
-                const ipEl = document.getElementById('user-ip');
-                if (ipEl) { 
-                    ipEl.innerText = data.ip; 
-                    ipEl.classList.remove('decrypting'); 
-                }
-                // Since ipify only gives IP, we label location as 'ENCRYPTED_NODE'
-                const locEl = document.getElementById('user-loc');
-                if (locEl) { 
-                    locEl.innerText = "BYPASSING_GEO_BLOCK..."; 
-                    locEl.classList.remove('decrypting');
-                }
+                renderLocation(data);
             })
             .catch(() => {
-                // ABSOLUTE FAIL: Show the localhost error
-                const ipEl = document.getElementById('user-ip');
-                if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
-                document.getElementById('user-loc').innerText = "CONNECTION_LOST";
-                document.getElementById('user-tz').innerText = "UTC_UNKNOWN";
+                // FAILOVER: Try a different API if ipapi is blocked
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(data => {
+                        const ipEl = document.getElementById('user-ip');
+                        if (ipEl) { 
+                            ipEl.innerText = data.ip; 
+                            ipEl.classList.remove('decrypting'); 
+                        }
+                        const locEl = document.getElementById('user-loc');
+                        if (locEl) { 
+                            locEl.innerText = "BYPASSING_GEO_BLOCK..."; 
+                            locEl.classList.remove('decrypting');
+                        }
+                        const tzEl = document.getElementById('user-tz');
+                        if (tzEl) { 
+                            tzEl.innerText = "UTC_UNKNOWN"; 
+                            tzEl.classList.remove('decrypting');
+                        }
+                    })
+                    .catch(() => {
+                        // ABSOLUTE FAIL: Show the localhost error
+                        const ipEl = document.getElementById('user-ip');
+                        if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
+                        document.getElementById('user-loc').innerText = "CONNECTION_LOST";
+                        document.getElementById('user-tz').innerText = "UTC_UNKNOWN";
+                        
+                        // Clear decrypting classes even on fail
+                        document.querySelectorAll('.decrypting').forEach(el => el.classList.remove('decrypting'));
+                    });
             });
-    });
-
-function renderLocation(data) {
-    setTimeout(() => {
-        const ipEl = document.getElementById('user-ip');
-        const locEl = document.getElementById('user-loc');
-        const tzEl = document.getElementById('user-tz');
-
-        if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
-        if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
-        if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
-        
-        userCity = data.city || "Unknown";
-        userCountry = data.country_name || "Unknown";
-    }, 2000);
-})
-            .catch(() => {
-    setTimeout(() => {
-        const ipEl = document.getElementById('user-ip');
-        const locEl = document.getElementById('user-loc');
-        const tzEl = document.getElementById('user-tz');
-        if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
-        if (locEl) { locEl.innerText = "CONNECTION_LOST"; locEl.classList.remove('decrypting'); }
-        // NEW: Clears the timezone decrypting state
-        if (tzEl) { tzEl.innerText = "UTC_UNKNOWN"; tzEl.classList.remove('decrypting'); }
-    }, 2000);
-});
 
         // 2. Hardware & System (Reveal after 2s)
         setTimeout(() => {
@@ -370,7 +351,7 @@ function renderLocation(data) {
                 cpuEl.classList.remove('decrypting'); 
             }
             if (ramEl) { 
-                ramEl.innerText = (navigator.deviceMemory || "8") + "GB RAM"; 
+                ramEl.innerText = (navigator.deviceMemory || "4") + "GB RAM"; 
                 ramEl.classList.remove('decrypting'); 
             }
 
@@ -389,16 +370,16 @@ function renderLocation(data) {
 
             const gpuEl = document.getElementById('user-gpu');
             if (gpuEl) {
-             try {
-    const gl = document.createElement('canvas').getContext('webgl');
-    const debug = gl.getExtension('WEBGL_debug_renderer_info');
-    let renderer = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
-    // This line cleans up the "(driver)" text and ensures it only shows the card name
-    gpuEl.innerText = renderer.replace(/[\(\)]/g, '').split(' ').pop();
-} catch(e) { 
-    gpuEl.innerText = "VIRTUAL_ACCEL"; 
-}
-gpuEl.classList.remove('decrypting');
+                try {
+                    const gl = document.createElement('canvas').getContext('webgl');
+                    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+                    let renderer = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
+                    // Clean up the renderer string to show the model
+                    gpuEl.innerText = renderer.replace(/[\(\)]/g, '').split(' ').pop();
+                } catch(e) { 
+                    gpuEl.innerText = "VIRTUAL_ACCEL"; 
+                }
+                gpuEl.classList.remove('decrypting');
             }
 
             const battEl = document.getElementById('user-batt');
@@ -413,6 +394,21 @@ gpuEl.classList.remove('decrypting');
                     battEl.classList.remove('decrypting');
                 }
             }
+        }, 2000);
+    }
+
+    function renderLocation(data) {
+        setTimeout(() => {
+            const ipEl = document.getElementById('user-ip');
+            const locEl = document.getElementById('user-loc');
+            const tzEl = document.getElementById('user-tz');
+
+            if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
+            if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
+            if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
+            
+            userCity = data.city || "Unknown";
+            userCountry = data.country_name || "Unknown";
         }, 2000);
     }
 
