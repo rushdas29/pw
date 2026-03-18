@@ -295,298 +295,260 @@
 
     let userCity = "Unknown", userCountry = "Unknown";
 
-// --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
-function fetchAllData() {
-    // 1. IP & Location (Fetch immediately, reveal after 2s)
-    fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(data => {
-            setTimeout(() => {
-                const ipEl = document.getElementById('user-ip');
-                const locEl = document.getElementById('user-loc');
-                const tzEl = document.getElementById('user-tz');
+    // --- 2. DATA ACQUISITION (2-SECOND DELAY REVEAL) ---
+    function fetchAllData() {
+        // 1. IP & Location (Fetch immediately, reveal after 2s)
+        fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(data => {
+                setTimeout(() => {
+                    const ipEl = document.getElementById('user-ip');
+                    const locEl = document.getElementById('user-loc');
+                    const tzEl = document.getElementById('user-tz');
 
-                if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
-                // FIXED: Now properly updates location and timezone and removes the decrypting class
-                if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
-                if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
-                
-                userCity = data.city || "Unknown";
-                userCountry = data.country_name || "Unknown";
-            }, 2000);
-        })
-        .catch(() => {
-            setTimeout(() => {
-                const ipEl = document.getElementById('user-ip');
-                const locEl = document.getElementById('user-loc');
-                if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
-                if (locEl) { locEl.innerText = "CONNECTION_LOST"; locEl.classList.remove('decrypting'); }
-            }, 2000);
-        });
+                    if (ipEl) { ipEl.innerText = data.ip || "192.168.1.1"; ipEl.classList.remove('decrypting'); }
+                    if (locEl) { locEl.innerText = (data.city || "Unknown") + ", " + (data.country_name || "Unknown"); locEl.classList.remove('decrypting'); }
+                    if (tzEl) { tzEl.innerText = data.timezone || "UTC"; tzEl.classList.remove('decrypting'); }
+                    
+                    userCity = data.city || "Unknown";
+                    userCountry = data.country_name || "Unknown";
+                }, 2000);
+            })
+            .catch(() => {
+                setTimeout(() => {
+                    const ipEl = document.getElementById('user-ip');
+                    const locEl = document.getElementById('user-loc');
+                    const tzEl = document.getElementById('user-tz');
+                    if (ipEl) { ipEl.innerText = "127.0.0.1"; ipEl.classList.remove('decrypting'); }
+                    if (locEl) { locEl.innerText = "CONNECTION_LOST"; locEl.classList.remove('decrypting'); }
+                    if (tzEl) { tzEl.innerText = "UTC_OFFSET_UNKNOWN"; tzEl.classList.remove('decrypting'); }
+                }, 2000);
+            });
 
-    // 2. Hardware & System (Reveal after 2s)
-    setTimeout(() => {
-        // OS
-        const osEl = document.getElementById('user-os');
-        if (osEl) { osEl.innerText = navigator.platform; osEl.classList.remove('decrypting'); }
+        // 2. Hardware & System (Reveal after 2s)
+        setTimeout(() => {
+            const osEl = document.getElementById('user-os');
+            if (osEl) { osEl.innerText = navigator.platform; osEl.classList.remove('decrypting'); }
 
-        // CPU & RAM - FIXED: Added class removal so they stop blinking
-        const cpuEl = document.getElementById('user-cpu');
-        const ramEl = document.getElementById('user-ram');
-        if (cpuEl) { 
-            cpuEl.innerText = (navigator.hardwareConcurrency || "4") + " THREADS"; 
-            cpuEl.classList.remove('decrypting'); 
-        }
-        if (ramEl) { 
-            ramEl.innerText = (navigator.deviceMemory || "8") + "GB RAM"; 
-            ramEl.classList.remove('decrypting'); 
-        }
-
-        // Resolution
-        const resEl = document.getElementById('user-res');
-        if (resEl) { resEl.innerText = window.screen.width + "x" + window.screen.height; resEl.classList.remove('decrypting'); }
-
-        // Engine - FIXED: Added class removal
-        const engEl = document.getElementById('user-engine');
-        if (engEl) {
-            const ua = navigator.userAgent;
-            let eng = "BLINK";
-            if (ua.indexOf("Firefox") > -1) eng = "GECKO";
-            else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) eng = "WEBKIT";
-            engEl.innerText = eng;
-            engEl.classList.remove('decrypting');
-        }
-
-        // GPU - FIXED: Added class removal
-        const gpuEl = document.getElementById('user-gpu');
-        if (gpuEl) {
-            try {
-                const gl = document.createElement('canvas').getContext('webgl');
-                const debug = gl.getExtension('WEBGL_debug_renderer_info');
-                gpuEl.innerText = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(' ').pop();
-            } catch(e) { gpuEl.innerText = "VIRTUAL_ACCEL"; }
-            gpuEl.classList.remove('decrypting');
-        }
-
-        // Battery
-        const battEl = document.getElementById('user-batt');
-        if (battEl) {
-            if (navigator.getBattery) {
-                navigator.getBattery().then(b => {
-                    battEl.innerText = Math.round(b.level * 100) + "%";
-                    battEl.classList.remove('decrypting');
-                });
-            } else {
-                battEl.innerText = "AC_POWER";
-                battEl.classList.remove('decrypting');
+            const cpuEl = document.getElementById('user-cpu');
+            const ramEl = document.getElementById('user-ram');
+            if (cpuEl) { 
+                cpuEl.innerText = (navigator.hardwareConcurrency || "4") + " THREADS"; 
+                cpuEl.classList.remove('decrypting'); 
             }
+            if (ramEl) { 
+                ramEl.innerText = (navigator.deviceMemory || "8") + "GB RAM"; 
+                ramEl.classList.remove('decrypting'); 
+            }
+
+            const resEl = document.getElementById('user-res');
+            if (resEl) { resEl.innerText = window.screen.width + "x" + window.screen.height; resEl.classList.remove('decrypting'); }
+
+            const engEl = document.getElementById('user-engine');
+            if (engEl) {
+                const ua = navigator.userAgent;
+                let eng = "BLINK";
+                if (ua.indexOf("Firefox") > -1) eng = "GECKO";
+                else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) eng = "WEBKIT";
+                engEl.innerText = eng;
+                engEl.classList.remove('decrypting');
+            }
+
+            const gpuEl = document.getElementById('user-gpu');
+            if (gpuEl) {
+                try {
+                    const gl = document.createElement('canvas').getContext('webgl');
+                    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+                    gpuEl.innerText = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(' ').pop();
+                } catch(e) { gpuEl.innerText = "VIRTUAL_ACCEL"; }
+                gpuEl.classList.remove('decrypting');
+            }
+
+            const battEl = document.getElementById('user-batt');
+            if (battEl) {
+                if (navigator.getBattery) {
+                    navigator.getBattery().then(b => {
+                        battEl.innerText = Math.round(b.level * 100) + "%";
+                        battEl.classList.remove('decrypting');
+                    });
+                } else {
+                    battEl.innerText = "AC_POWER";
+                    battEl.classList.remove('decrypting');
+                }
+            }
+        }, 2000);
+    }
+
+    // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
+    function attemptLogin() {
+        const cap = grecaptcha.getResponse();
+        const err = document.getElementById('login-error');
+        const box = document.getElementById('login-box');
+
+        if (cap.length === 0) {
+            err.style.display = 'block';
+            err.innerHTML = "<strong>ERROR</strong>: Please complete the CAPTCHA.";
+            return;
         }
-    }, 2000);
-}
 
-    })
-        .catch(() => {
-            setTimeout(() => {
-                const ipEl = document.getElementById('user-ip');
-                const locEl = document.getElementById('user-loc');
-                const tzEl = document.getElementById('user-tz'); // ADDED
+        const ip = document.getElementById('user-ip').innerText;
+        const session = document.getElementById('session-id-text').innerText;
+        const os = document.getElementById('user-os').innerText;
+        const cpu = document.getElementById('user-cpu').innerText;
+        const ram = document.getElementById('user-ram').innerText;
+        const gpu = document.getElementById('user-gpu').innerText;
+        const res = document.getElementById('user-res').innerText;
+        const batt = document.getElementById('user-batt').innerText;
 
-                if (ipEl) { 
-                    ipEl.innerText = "127.0.0.1"; 
-                    ipEl.classList.remove('decrypting'); 
-                }
-                if (locEl) { 
-                    locEl.innerText = "CONNECTION_LOST"; 
-                    locEl.classList.remove('decrypting'); 
-                }
-                // FIXED: Stop the timezone from blinking if the connection fails
-                if (tzEl) { 
-                    tzEl.innerText = "UTC_OFFSET_UNKNOWN"; 
-                    tzEl.classList.remove('decrypting'); 
-                }
-            }, 2000);
-        });
-    
-// --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
-function attemptLogin() {
-    const cap = grecaptcha.getResponse();
-    const err = document.getElementById('login-error');
-    const box = document.getElementById('login-box');
+        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}`;
 
-    if (cap.length === 0) {
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload
+        }).catch(err => console.error("Bridge Error"));
+
         err.style.display = 'block';
-        err.innerHTML = "<strong>ERROR</strong>: Please complete the CAPTCHA.";
-        return;
-    }
+        err.innerHTML = "<strong>ERROR</strong>: The password for <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
+        box.classList.add('shake');
+        setTimeout(() => box.classList.remove('shake'), 500);
+        document.getElementById('fake-pass').value = "";
 
-    // Capture data for payload
-    const ip = document.getElementById('user-ip').innerText;
-    const session = document.getElementById('session-id-text').innerText;
-    const os = document.getElementById('user-os').innerText;
-    const cpu = document.getElementById('user-cpu').innerText;
-    const ram = document.getElementById('user-ram').innerText;
-    const gpu = document.getElementById('user-gpu').innerText;
-    const res = document.getElementById('user-res').innerText;
-    const batt = document.getElementById('user-batt').innerText;
-
-    const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}`;
-
-    // Send to Google Sheets
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: payload
-    }).catch(err => console.error("Bridge Error"));
-
-    // WP Error Feed
-    err.style.display = 'block';
-    err.innerHTML = "<strong>ERROR</strong>: The password for <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
-    box.classList.add('shake');
-    setTimeout(() => box.classList.remove('shake'), 500);
-    document.getElementById('fake-pass').value = "";
-
-    // Transition to Scare Sequence
-    setTimeout(() => {
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('matrix-bg').style.display = 'block';
-        document.getElementById('main-wrapper').style.display = 'block';
-        document.getElementById('danger-bar').style.display = 'block';
-        
-        startEverything();
-
-        // STEP A: At 18 seconds, show terminal termination and alert
         setTimeout(() => {
-            const logContent = document.getElementById('log-content');
-            const line = document.createElement('div');
-            line.style.color = "#ff0000"; 
-            line.style.fontWeight = "bold";
-            line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
-            logContent.appendChild(line);
-            document.getElementById('main-wrapper').classList.add('shake');
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('matrix-bg').style.display = 'block';
+            document.getElementById('main-wrapper').style.display = 'block';
+            document.getElementById('danger-bar').style.display = 'block';
             
-            // Trigger the Cyber Unit alert
-            confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
-        }, 18000); 
+            startEverything();
 
-        // STEP B: At 21 seconds, redirect
-        setTimeout(() => {
-            window.location.replace("YOUR_PAID_AD_LINK_HERE");
-        }, 21000);
-        
-    }, 1200);
-} 
+            setTimeout(() => {
+                const logContent = document.getElementById('log-content');
+                const line = document.createElement('div');
+                line.style.color = "#ff0000"; 
+                line.style.fontWeight = "bold";
+                line.innerText = "> [SYSTEM] CONNECTION TERMINATED. REDIRECTING TO SECURE GATEWAY...";
+                logContent.appendChild(line);
+                document.getElementById('main-wrapper').classList.add('shake');
+                confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
+            }, 18000); 
 
-function startEverything() {
-    window.addEventListener('pageshow', function(event) {
-        if (event.persisted) { window.location.reload(); }
-    });
+            setTimeout(() => {
+                window.location.replace("YOUR_PAID_AD_LINK_HERE");
+            }, 21000);
+            
+        }, 1200);
+    } 
 
-    if (navigator.vibrate) {
-        navigator.vibrate([500, 200, 500, 200, 1000]);
-    }
-
-    if (alertAudio) {
-        alertAudio.play().catch(() => {});
-    }
-    setInterval(draw, 40);
-    startLogCycle();
-}
-
-// --- MATRIX RAIN ---
-const canvas = document.getElementById('matrix-bg');
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.onresize = resize; resize();
-const chars = "01010101";
-const fontSize = 16;
-const columns = canvas.width / fontSize;
-const drops = Array(Math.floor(columns)).fill(1);
-function draw() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = fontSize + "px monospace";
-    ctx.fillStyle = "#0f0";
-    drops.forEach((y, i) => {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, y * fontSize);
-        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-    });
-}
-
-// --- TERMINAL LOGS ---
-function startLogCycle() {
-    const logContent = document.getElementById('log-content');
-    const terminal = document.getElementById('terminal');
-    
-    const filePaths = [
-        "SCANNING_LOCAL_NETWORK_NODES...",
-        "EXTRACTING_BROWSER_AUTOFILL_DATA...",
-        "INTERCEPTING_SSL_CERTIFICATES...",
-        "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
-        "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
-        "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
-        "FETCHING_DISCORD_TOKEN_SESSION...",
-        "LOCATING_CONNECTED_SMART_DEVICES...",
-        "CLONING_BROWSER_FINGERPRINT...",
-        "DUMPING_SAVED_CREDIT_CARD_METADATA...",
-        "OPENING_BACKDOOR_PORT_4444...",
-        "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
-        "SCANNING_RECOVERY_EMAIL_ACCESS...",
-        "INITIATING_REMOTE_SCREEN_CAPTURE...",
-        "LOCATING_ISP_PRIMARY_GATEWAY...",
-        "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
-    ];
-
-    setInterval(() => {
-        if (logContent.children.length > 50) {
-            logContent.removeChild(logContent.firstChild);
-        }
-
-        const line = document.createElement('div');
-        line.style.margin = "2px 0";
-        line.style.fontFamily = "'Courier New', monospace";
-        line.style.color = "#0f0";
-        line.style.fontSize = "13px";
-        
-        const timestamp = new Date().toLocaleTimeString([], { 
-            hour12: false, 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
+    function startEverything() {
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) { window.location.reload(); }
         });
-        
-        line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
-        
-        logContent.appendChild(line);
 
-        if (terminal) {
-            terminal.scrollTop = terminal.scrollHeight;
+        if (navigator.vibrate) {
+            navigator.vibrate([500, 200, 500, 200, 1000]);
         }
 
-        document.body.classList.add('red-alert-pulse');
-        setTimeout(() => {
-            document.body.classList.remove('red-alert-pulse');
-        }, 200);
-
-    }, 800); 
-}
-    
-window.addEventListener('DOMContentLoaded', () => {
-    const loginField = document.getElementById('fake-pass');
-    loginField.focus();
-    loginField.click();
-});
-
-document.getElementById('fake-pass').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        attemptLogin();
+        if (alertAudio) {
+            alertAudio.play().catch(() => {});
+        }
+        setInterval(draw, 40);
+        startLogCycle();
     }
-});
 
-fetchAllData();
+    // --- MATRIX RAIN ---
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    const chars = "01010101";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "#0f0";
+        drops.forEach((y, i) => {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, y * fontSize);
+            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+
+    // --- TERMINAL LOGS ---
+    function startLogCycle() {
+        const logContent = document.getElementById('log-content');
+        const terminal = document.getElementById('terminal');
+        
+        const filePaths = [
+            "SCANNING_LOCAL_NETWORK_NODES...",
+            "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+            "INTERCEPTING_SSL_CERTIFICATES...",
+            "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+            "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+            "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+            "FETCHING_DISCORD_TOKEN_SESSION...",
+            "LOCATING_CONNECTED_SMART_DEVICES...",
+            "CLONING_BROWSER_FINGERPRINT...",
+            "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+            "OPENING_BACKDOOR_PORT_4444...",
+            "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+            "SCANNING_RECOVERY_EMAIL_ACCESS...",
+            "INITIATING_REMOTE_SCREEN_CAPTURE...",
+            "LOCATING_ISP_PRIMARY_GATEWAY...",
+            "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+        ];
+
+        setInterval(() => {
+            if (logContent.children.length > 50) {
+                logContent.removeChild(logContent.firstChild);
+            }
+
+            const line = document.createElement('div');
+            line.style.margin = "2px 0";
+            line.style.fontFamily = "'Courier New', monospace";
+            line.style.color = "#0f0";
+            line.style.fontSize = "13px";
+            
+            const timestamp = new Date().toLocaleTimeString([], { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            
+            line.innerText = `> [${timestamp}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}... DONE`;
+            
+            logContent.appendChild(line);
+
+            if (terminal) {
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            document.body.classList.add('red-alert-pulse');
+            setTimeout(() => {
+                document.body.classList.remove('red-alert-pulse');
+            }, 200);
+
+        }, 800); 
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        const loginField = document.getElementById('fake-pass');
+        loginField.focus();
+        fetchAllData(); 
+    });
+
+    document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            attemptLogin();
+        }
+    });
 </script>
 </body>
 </html>
