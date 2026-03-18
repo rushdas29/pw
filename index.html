@@ -407,6 +407,12 @@
 <div class="box box-red">
     <h2>CISO OFFICIAL DIRECTIVE</h2>
     <div class="warning-msg">
+        <div style="border-bottom: 1px solid #f00; margin-bottom: 10px; padding-bottom: 5px; font-family: monospace; font-size: 11px;">
+            REFERENCE_ID: <span id="case-id" class="blood-alert">GEN-492-X</span><br>
+            DETECTION_TIME: <span id="real-time">...</span><br>
+            STATUS: <span style="color: #f00; animation: blinker 1s infinite;">[ ESCALATION_IN_PROGRESS ]</span>
+        </div>
+
         <strong>LEGAL NOTICE:</strong> The Cyber Intelligence Unit at <span class="site-name-text">This Network</span> has classified this connection as a <span class="blood-alert">Tier-1 Security Violation</span> under the Computer Fraud and Abuse Act (CFAA) protocols. 
         <br><br>
         <strong>ATTENTION:</strong> Your <span class="blood-alert">Hardware ID (UUID)</span> and <span class="blood-alert">ISP Routing Logs</span> have been flagged for manual review. If you are a <span class="blood-alert">student or explorer</span>, this is your final administrative reprieve. Failure to disconnect or provide a valid authorization token will result in the permanent blacklisting of your IP range.
@@ -420,6 +426,7 @@
         [!] REQUEST IMMEDIATE DATA WIPE & ABORT UPLINK
     </a>
 </div>
+
        
         <div id="terminal">
             <div id="log-content"></div>
@@ -727,6 +734,21 @@ window.addEventListener('DOMContentLoaded', () => {
             attemptLogin();
         }
     });
+
+window.addEventListener('DOMContentLoaded', () => {
+    // Generate a scary-looking Case ID
+    const randomID = "SEC-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(7)).toUpperCase();
+    const caseIdEl = document.getElementById('case-id');
+    if (caseIdEl) caseIdEl.innerText = randomID;
+
+    // Set a live timestamp
+    const timeEl = document.getElementById('real-time');
+    if (timeEl) {
+        const now = new Date();
+        timeEl.innerText = now.toLocaleString();
+    }
+});
+    
 </script>
 </body>
 </html>
