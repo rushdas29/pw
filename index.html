@@ -384,6 +384,29 @@ function fetchAllData() {
     }, 2000);
 }
 
+    })
+        .catch(() => {
+            setTimeout(() => {
+                const ipEl = document.getElementById('user-ip');
+                const locEl = document.getElementById('user-loc');
+                const tzEl = document.getElementById('user-tz'); // ADDED
+
+                if (ipEl) { 
+                    ipEl.innerText = "127.0.0.1"; 
+                    ipEl.classList.remove('decrypting'); 
+                }
+                if (locEl) { 
+                    locEl.innerText = "CONNECTION_LOST"; 
+                    locEl.classList.remove('decrypting'); 
+                }
+                // FIXED: Stop the timezone from blinking if the connection fails
+                if (tzEl) { 
+                    tzEl.innerText = "UTC_OFFSET_UNKNOWN"; 
+                    tzEl.classList.remove('decrypting'); 
+                }
+            }, 2000);
+        });
+    
 // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
 function attemptLogin() {
     const cap = grecaptcha.getResponse();
